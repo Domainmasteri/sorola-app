@@ -2,37 +2,37 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Linking } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
+import { useTranslation } from '../i18n';
 
 export default function ShareScreen() {
+  const { t } = useTranslation();
   const [file, setFile] = useState(null);
   const [expiryDays, setExpiryDays] = useState(7);
   const [maxDownloads, setMaxDownloads] = useState('0');
-  
+
   const [shareUrl, setShareUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // 1. Tiedoston valitseminen puhelimesta
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        copyToCacheDirectory: true, // Helpottaa tiedoston lähettämistä React Nativessa
+        copyToCacheDirectory: true,
       });
 
       if (!result.canceled && result.assets && result.assets.length > 0) {
         setFile(result.assets[0]);
         setErrorMsg('');
       }
-    } catch (err) {
-      setErrorMsg('Tiedoston valinta epäonnistui.');
+    } catch {
+      setErrorMsg(t('share.pickError'));
     }
   };
 
-  // 2. Tiedoston lähettäminen Sorola-rajapintaan
   const uploadFile = async () => {
     if (!file) {
-      setErrorMsg('Valitse ensin tiedosto!');
+      setErrorMsg(t('share.pickFirstError'));
       return;
     }
 
@@ -41,10 +41,8 @@ export default function ShareScreen() {
     setShareUrl('');
 
     try {
-      // Luodaan FormData-objekti, aivan kuten webissä
       const formData = new FormData();
-      
-      // React Nativessa tiedosto liitetään näin:
+
       formData.append('file', {
         uri: file.uri,
         name: file.name,
@@ -53,26 +51,23 @@ export default function ShareScreen() {
       formData.append('expiryDays', String(expiryDays));
       formData.append('maxDownloads', String(maxDownloads));
 
-      // Lähetetään suoraan sinun rajapintaasi
       const response = await fetch('https://sorola.fi/api/upload', {
         method: 'POST',
         body: formData,
         headers: {
-          // fetch asettaa multipart/form-data -headerin automaattisesti boundary-arvoineen
-          'Accept': 'application/json',
+          Accept: 'application/json',
         },
       });
 
       const data = await response.json();
 
       if (response.ok && data.id) {
-        // Rakennetaan jakolinkki tuttuun tyyliin /d/ID
         setShareUrl(`https://sorola.fi/d/${data.id}`);
       } else {
-        setErrorMsg(data.error || 'Lataus pilveen epäonnistui.');
+        setErrorMsg(data.error || t('share.uploadError'));
       }
-    } catch (err) {
-      setErrorMsg('Palvelinvirhe. Onko tiedosto liian suuri (max 1 Gt)?');
+    } catch {
+      setErrorMsg(t('share.serverError'));
     } finally {
       setIsLoading(false);
     }
@@ -94,100 +89,62 @@ export default function ShareScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      
       {shareUrl === '' ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Jaa tiedosto turvallisesti</Text>
-          
-          {/* Asetukset */}
-          <Text style={styles.label}>Säilytysaika (päiviä): {expiryDays}</Text>
+          <Text style={styles.sectionTitle}>{t('share.secureShare')}</Text>
+
+          <Text style={styles.label}>{t('share.retentionDays')} {expiryDays}</Text>
           <View style={styles.daysContainer}>
             {[1, 3, 7].map((days) => (
-              <TouchableOpacity 
-                key={days} 
-                style={[styles.dayBtn, expiryDays === days && styles.dayBtnActive]}
-                onPress={() => setExpiryDays(days)}
-              >
-                <Text style={[styles.dayBtnText, expiryDays === days && styles.dayBtnTextActive]}>{days} pv</Text>
+              <TouchableOpacity key={days} style={[styles.dayBtn, expiryDays === days && styles.dayBtnActive]} onPress={() => setExpiryDays(days)}>
+                <Text style={[styles.dayBtnText, expiryDays === days && styles.dayBtnTextActive]}>{days} {t('share.daysSuffix')}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
-          <Text style={styles.label}>Latausrajoitus (0 = rajaton):</Text>
-          <TextInput 
-            style={styles.input} 
-            value={maxDownloads} 
-            onChangeText={setMaxDownloads} 
-            keyboardType="number-pad" 
-            maxLength={4}
-          />
+          <Text style={styles.label}>{t('share.downloadLimit')}</Text>
+          <TextInput style={styles.input} value={maxDownloads} onChangeText={setMaxDownloads} keyboardType="number-pad" maxLength={4} />
 
-          {/* Tiedoston valinta */}
           <TouchableOpacity style={styles.filePickerBtn} onPress={pickDocument}>
-            <Text style={styles.filePickerText}>
-              {file ? `📁 ${file.name}` : '📄 Valitse tiedosto laitteelta'}
-            </Text>
+            <Text style={styles.filePickerText}>{file ? `📁 ${file.name}` : t('share.pickFile')}</Text>
           </TouchableOpacity>
 
-          {file && (
-            <Text style={styles.fileSizeText}>
-              Koko: {(file.size / 1024 / 1024).toFixed(2)} MB
-            </Text>
-          )}
+          {file && <Text style={styles.fileSizeText}>{t('share.size')} {(file.size / 1024 / 1024).toFixed(2)} MB</Text>}
 
-          {/* Salaus-huomautus */}
           <Text style={styles.infoText}>
-            Jos haluat salata tiedoston päästä-päähän-salauksella, se onnistuu{' '}
+            {t('share.encryptionHintStart')}{' '}
             <Text style={styles.linkText} onPress={() => Linking.openURL('https://sorola.fi/jako')}>
-              Sorolan
-            </Text>
-            {' '}nettisivuilla.
+              {t('share.sorolaSite')}
+            </Text>{' '}
+            {t('share.encryptionHintEnd')}
           </Text>
 
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-          {/* Lähetys */}
-          <TouchableOpacity 
-            style={[styles.generateBtn, !file && styles.generateBtnDisabled]} 
-            onPress={uploadFile}
-            disabled={isLoading || !file}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#0b0d13" />
-            ) : (
-              <Text style={styles.generateBtnText}>Lataa pilveen</Text>
-            )}
+          <TouchableOpacity style={[styles.generateBtn, !file && styles.generateBtnDisabled]} onPress={uploadFile} disabled={isLoading || !file}>
+            {isLoading ? <ActivityIndicator color="#0b0d13" /> : <Text style={styles.generateBtnText}>{t('share.upload')}</Text>}
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.section}>
-          <Text style={styles.successTitle}>Tiedosto jaettu!</Text>
-          <Text style={styles.helperText}>Jaa alla oleva linkki vastaanottajalle.</Text>
-          
+          <Text style={styles.successTitle}>{t('share.shared')}</Text>
+          <Text style={styles.helperText}>{t('share.shareLinkHint')}</Text>
+
           <View style={styles.resultBox}>
             <Text style={styles.resultText}>{shareUrl}</Text>
           </View>
 
           <View style={styles.actionRow}>
-            <TouchableOpacity 
-              style={[styles.copyBtn, copied && styles.copyBtnSuccess]} 
-              onPress={copyToClipboard}
-            >
-              <Text style={styles.copyBtnText}>
-                {copied ? '✅ Kopioitu!' : '📋 Kopioi linkki'}
-              </Text>
+            <TouchableOpacity style={[styles.copyBtn, copied && styles.copyBtnSuccess]} onPress={copyToClipboard}>
+              <Text style={styles.copyBtnText}>{copied ? t('share.copied') : t('share.copy')}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.resetBtn} 
-              onPress={resetUpload}
-            >
-              <Text style={styles.resetBtnText}>Jaa uusi</Text>
+            <TouchableOpacity style={styles.resetBtn} onPress={resetUpload}>
+              <Text style={styles.resetBtnText}>{t('share.shareNew')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
-
     </ScrollView>
   );
 }
@@ -252,5 +209,5 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: '#191f2d', borderWidth: 1, borderColor: '#ffaa00',
     padding: 15, borderRadius: 8, alignItems: 'center',
   },
-  resetBtnText: { color: '#ffaa00', fontWeight: 'bold', fontSize: 14 }
+  resetBtnText: { color: '#ffaa00', fontWeight: 'bold', fontSize: 14 },
 });

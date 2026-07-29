@@ -1,21 +1,22 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { useTranslation } from '../i18n';
 
 export default function ShortenerScreen() {
+  const { t } = useTranslation();
   const [url, setUrl] = useState('');
-  const [domain, setDomain] = useState('srla.fi'); // Oletuksena srla.fi
+  const [domain, setDomain] = useState('srla.fi');
   const [shortUrl, setShortUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
 
-  // Käytetään samoja domaineja kuin nettisivuilla
   const domains = ['soro.la', 'srla.fi', 'srl.la'];
 
   const shortenUrl = async () => {
     if (!url.trim()) {
-      setErrorMsg('Syötä ensin lyhennettävä osoite!');
+      setErrorMsg(t('shortener.emptyUrlError'));
       return;
     }
 
@@ -24,20 +25,19 @@ export default function ShortenerScreen() {
     setShortUrl('');
 
     try {
-      // Yhdistetään suoraan sinun valmiiseen API-päätepisteeseesi
       const apiUrl = `https://sorola.fi/api/lyhennin/create?url=${encodeURIComponent(url)}&domain=${encodeURIComponent(domain)}`;
-      
+
       const response = await fetch(apiUrl);
       const data = await response.json();
 
       if (data.success && data.shortUrl) {
         setShortUrl(data.shortUrl);
-        setUrl(''); // Tyhjennetään kenttä onnistumisen jälkeen
+        setUrl('');
       } else {
-        setErrorMsg(data.error || 'Linkin luonti epäonnistui.');
+        setErrorMsg(data.error || t('shortener.createError'));
       }
-    } catch (err) {
-      setErrorMsg('Palvelinvirhe. Tarkista verkkoyhteys.');
+    } catch {
+      setErrorMsg(t('shortener.serverError'));
     } finally {
       setIsLoading(false);
     }
@@ -52,70 +52,49 @@ export default function ShortenerScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      
-      {/* 1. Syöttö-laatikko */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Luo Lyhytlinkki</Text>
+        <Text style={styles.sectionTitle}>{t('shortener.create')}</Text>
 
-        <Text style={styles.label}>Valitse domain:</Text>
+        <Text style={styles.label}>{t('shortener.chooseDomain')}</Text>
         <View style={styles.domainContainer}>
           {domains.map((d) => (
-            <TouchableOpacity 
-              key={d} 
-              style={[styles.domainBtn, domain === d && styles.domainBtnActive]}
-              onPress={() => setDomain(d)}
-            >
+            <TouchableOpacity key={d} style={[styles.domainBtn, domain === d && styles.domainBtnActive]} onPress={() => setDomain(d)}>
               <Text style={[styles.domainBtnText, domain === d && styles.domainBtnTextActive]}>{d}</Text>
             </TouchableOpacity>
           ))}
         </View>
 
-        <Text style={styles.label}>Lyhennettävä osoite:</Text>
-        <TextInput 
-          style={styles.input} 
-          placeholder="https://esimerkki.fi/pitka-osoite..." 
-          placeholderTextColor="#a0aec0" 
-          value={url} 
-          onChangeText={setUrl} 
-          keyboardType="url" 
-          autoCapitalize="none" 
+        <Text style={styles.label}>{t('shortener.urlToShorten')}</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={t('shortener.placeholderUrl')}
+          placeholderTextColor="#a0aec0"
+          value={url}
+          onChangeText={setUrl}
+          keyboardType="url"
+          autoCapitalize="none"
         />
 
         {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-        <TouchableOpacity 
-          style={styles.generateBtn} 
-          onPress={shortenUrl}
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="#0b0d13" />
-          ) : (
-            <Text style={styles.generateBtnText}>Lyhennä linkki</Text>
-          )}
+        <TouchableOpacity style={styles.generateBtn} onPress={shortenUrl} disabled={isLoading}>
+          {isLoading ? <ActivityIndicator color="#0b0d13" /> : <Text style={styles.generateBtnText}>{t('shortener.shorten')}</Text>}
         </TouchableOpacity>
       </View>
 
-      {/* 2. Tulos-laatikko (näytetään vain jos linkki on luotu) */}
       {shortUrl !== '' && (
         <View style={styles.section}>
-          <Text style={styles.successTitle}>Linkki on valmis!</Text>
-          
+          <Text style={styles.successTitle}>{t('shortener.ready')}</Text>
+
           <View style={styles.resultBox}>
             <Text style={styles.resultText}>{shortUrl}</Text>
           </View>
 
-          <TouchableOpacity 
-            style={[styles.copyBtn, copied && styles.copyBtnSuccess]} 
-            onPress={copyToClipboard}
-          >
-            <Text style={styles.copyBtnText}>
-              {copied ? '✅ Kopioitu!' : '📋 Kopioi linkki'}
-            </Text>
+          <TouchableOpacity style={[styles.copyBtn, copied && styles.copyBtnSuccess]} onPress={copyToClipboard}>
+            <Text style={styles.copyBtnText}>{copied ? t('shortener.copied') : t('shortener.copy')}</Text>
           </TouchableOpacity>
         </View>
       )}
-
     </ScrollView>
   );
 }
@@ -185,7 +164,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   errorText: {
-    color: '#ef4444', // Punainen virheväri
+    color: '#ef4444',
     marginBottom: 10,
     textAlign: 'center',
     fontWeight: 'bold',
@@ -204,7 +183,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   successTitle: {
-    color: '#4ade80', // Vihreä onnistumisväri
+    color: '#4ade80',
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
@@ -237,5 +216,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
-  }
+  },
 });
