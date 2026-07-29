@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
+import { useTranslation } from '../i18n';
 
 export default function PastebinScreen() {
+  const { t } = useTranslation();
   const [content, setContent] = useState('');
   const [pasteUrl, setPasteUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -11,7 +13,7 @@ export default function PastebinScreen() {
 
   const savePaste = async () => {
     if (!content.trim()) {
-      setErrorMsg('Tekstikenttä on tyhjä!');
+      setErrorMsg(t('pastebin.emptyError'));
       return;
     }
 
@@ -20,7 +22,6 @@ export default function PastebinScreen() {
     setPasteUrl('');
 
     try {
-      // Lähetetään teksti POST-pyynnöllä Sorolan Pastebin-rajapintaan
       const response = await fetch('https://sorola.fi/api/paste', {
         method: 'POST',
         headers: {
@@ -28,17 +29,16 @@ export default function PastebinScreen() {
         },
         body: JSON.stringify({ content }),
       });
-      
+
       const data = await response.json();
 
       if (response.ok && data.success) {
-        // Rakennetaan palautetusta path-tiedosta valmis osoite
         setPasteUrl(`https://sorola.fi/p/${data.path}`);
       } else {
-        setErrorMsg(data.error || 'Virhe tallennuksessa.');
+        setErrorMsg(data.error || t('pastebin.saveError'));
       }
-    } catch (err) {
-      setErrorMsg('Palvelinvirhe. Tarkista verkkoyhteys.');
+    } catch {
+      setErrorMsg(t('pastebin.serverError'));
     } finally {
       setIsLoading(false);
     }
@@ -60,66 +60,47 @@ export default function PastebinScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      
-      {/* Näytetään syöttö- tai tuloslaatikko tilanteen mukaan */}
       {pasteUrl === '' ? (
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Jaa tekstiä tai koodia</Text>
-          
+          <Text style={styles.sectionTitle}>{t('pastebin.shareText')}</Text>
+
           <TextInput
             style={styles.textArea}
-            placeholder="Liitä koodi tai teksti tähän..."
+            placeholder={t('pastebin.placeholderText')}
             placeholderTextColor="#a0aec0"
             value={content}
             onChangeText={setContent}
             multiline
-            textAlignVertical="top" // Pitää tekstin ylhäällä Androidilla
+            textAlignVertical="top"
             autoCapitalize="none"
           />
 
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-          <TouchableOpacity 
-            style={styles.generateBtn} 
-            onPress={savePaste}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="#0b0d13" />
-            ) : (
-              <Text style={styles.generateBtnText}>Tallenna ja luo linkki</Text>
-            )}
+          <TouchableOpacity style={styles.generateBtn} onPress={savePaste} disabled={isLoading}>
+            {isLoading ? <ActivityIndicator color="#0b0d13" /> : <Text style={styles.generateBtnText}>{t('pastebin.save')}</Text>}
           </TouchableOpacity>
         </View>
       ) : (
         <View style={styles.section}>
-          <Text style={styles.successTitle}>Teksti tallennettu!</Text>
-          <Text style={styles.helperText}>Jaa alla oleva linkki vastaanottajalle.</Text>
-          
+          <Text style={styles.successTitle}>{t('pastebin.saved')}</Text>
+          <Text style={styles.helperText}>{t('pastebin.shareLinkHint')}</Text>
+
           <View style={styles.resultBox}>
             <Text style={styles.resultText}>{pasteUrl}</Text>
           </View>
 
           <View style={styles.actionRow}>
-            <TouchableOpacity 
-              style={[styles.copyBtn, copied && styles.copyBtnSuccess]} 
-              onPress={copyToClipboard}
-            >
-              <Text style={styles.copyBtnText}>
-                {copied ? '✅ Kopioitu!' : '📋 Kopioi linkki'}
-              </Text>
+            <TouchableOpacity style={[styles.copyBtn, copied && styles.copyBtnSuccess]} onPress={copyToClipboard}>
+              <Text style={styles.copyBtnText}>{copied ? t('pastebin.copied') : t('pastebin.copy')}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity 
-              style={styles.resetBtn} 
-              onPress={resetPaste}
-            >
-              <Text style={styles.resetBtnText}>Luo uusi</Text>
+            <TouchableOpacity style={styles.resetBtn} onPress={resetPaste}>
+              <Text style={styles.resetBtnText}>{t('pastebin.createNew')}</Text>
             </TouchableOpacity>
           </View>
         </View>
       )}
-
     </ScrollView>
   );
 }
@@ -154,7 +135,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     fontSize: 14,
-    height: 250, // Reilusti tilaa koodille
+    height: 250,
     fontFamily: 'monospace',
     marginBottom: 10,
   },
@@ -236,5 +217,5 @@ const styles = StyleSheet.create({
     color: '#ffaa00',
     fontWeight: 'bold',
     fontSize: 14,
-  }
+  },
 });

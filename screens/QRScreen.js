@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image } from 'react-native';
+import { useTranslation } from '../i18n';
 
 export default function QRScreen() {
+  const { t } = useTranslation();
   const [type, setType] = useState('url');
-  
-  // Tilamuuttujat eri kentille (vastaavat web-versiosi kenttiä)
+
   const [url, setUrl] = useState('');
   const [text, setText] = useState('');
   const [wifiSsid, setWifiSsid] = useState('');
   const [wifiPass, setWifiPass] = useState('');
   const [wifiType, setWifiType] = useState('WPA');
   const [phone, setPhone] = useState('');
-  
-  // Oletuskuva laaditaan Sorola-linkillä
+
   const [qrImageUrl, setQrImageUrl] = useState('https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://soro.la');
 
   const generateQR = () => {
@@ -21,7 +21,7 @@ export default function QRScreen() {
     if (type === 'url') {
       dataString = url || 'https://soro.la';
     } else if (type === 'text') {
-      dataString = text || 'Moi!';
+      dataString = text || t('qr.defaultText');
     } else if (type === 'wifi') {
       dataString = `WIFI:T:${wifiType};S:${wifiSsid};P:${wifiPass};;`;
     } else if (type === 'phone') {
@@ -29,80 +29,67 @@ export default function QRScreen() {
     }
 
     const encodedData = encodeURIComponent(dataString);
-    // Käytetään suoraan tuttua rajapintaa
     setQrImageUrl(`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodedData}&color=000000`);
   };
 
-  // Apukomponentti tyypin valintaan (esim. URL, WiFi, jne.)
-  const TypeButton = ({ id, label }) => (
-    <TouchableOpacity 
-      style={[styles.typeBtn, type === id && styles.typeBtnActive]}
-      onPress={() => setType(id)}
-    >
+  const TypeButton = ({ id, label, onPress }) => (
+    <TouchableOpacity style={[styles.typeBtn, type === id && styles.typeBtnActive]} onPress={onPress || (() => setType(id))}>
       <Text style={[styles.typeBtnText, type === id && styles.typeBtnTextActive]}>{label}</Text>
     </TouchableOpacity>
   );
 
   return (
     <ScrollView style={styles.container}>
-      
-      {/* 1. Asetukset-laatikko */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>1. Valitse tyyppi</Text>
-        
+        <Text style={styles.sectionTitle}>{t('qr.selectType')}</Text>
+
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeContainer}>
-          <TypeButton id="url" label="Nettisivu" />
-          <TypeButton id="text" label="Teksti" />
-          <TypeButton id="wifi" label="Wi-Fi" />
-          <TypeButton id="phone" label="Puhelin" />
+          <TypeButton id="url" label={t('qr.website')} />
+          <TypeButton id="text" label={t('qr.text')} />
+          <TypeButton id="wifi" label={t('qr.wifi')} />
+          <TypeButton id="phone" label={t('qr.phone')} />
         </ScrollView>
 
-        {/* Kentät valinnan mukaan */}
         <View style={styles.inputContainer}>
           {type === 'url' && (
-            <TextInput style={styles.input} placeholder="https://soro.la" placeholderTextColor="#a0aec0" value={url} onChangeText={setUrl} keyboardType="url" autoCapitalize="none" />
+            <TextInput style={styles.input} placeholder={t('qr.placeholderUrl')} placeholderTextColor="#a0aec0" value={url} onChangeText={setUrl} keyboardType="url" autoCapitalize="none" />
           )}
 
           {type === 'text' && (
-            <TextInput style={[styles.input, { height: 80 }]} placeholder="Kirjoita viestisi tähän..." placeholderTextColor="#a0aec0" value={text} onChangeText={setText} multiline />
+            <TextInput style={[styles.input, { height: 80 }]} placeholder={t('qr.placeholderText')} placeholderTextColor="#a0aec0" value={text} onChangeText={setText} multiline />
           )}
 
           {type === 'wifi' && (
-            <View style={{gap: 10}}>
-              <TextInput style={styles.input} placeholder="Verkon nimi (SSID)" placeholderTextColor="#a0aec0" value={wifiSsid} onChangeText={setWifiSsid} />
-              <TextInput style={styles.input} placeholder="Salasana" placeholderTextColor="#a0aec0" value={wifiPass} onChangeText={setWifiPass} />
+            <View style={{ gap: 10 }}>
+              <TextInput style={styles.input} placeholder={t('qr.placeholderSsid')} placeholderTextColor="#a0aec0" value={wifiSsid} onChangeText={setWifiSsid} />
+              <TextInput style={styles.input} placeholder={t('qr.placeholderPassword')} placeholderTextColor="#a0aec0" value={wifiPass} onChangeText={setWifiPass} />
               <View style={styles.wifiTypeContainer}>
                 <TypeButton id="WPA" label="WPA/WPA2" onPress={() => setWifiType('WPA')} />
                 <TypeButton id="WEP" label="WEP" onPress={() => setWifiType('WEP')} />
-                <TypeButton id="nopass" label="Ei salasanaa" onPress={() => setWifiType('nopass')} />
+                <TypeButton id="nopass" label={t('qr.noPassword')} onPress={() => setWifiType('nopass')} />
               </View>
             </View>
           )}
 
           {type === 'phone' && (
-            <TextInput style={styles.input} placeholder="+358401234567" placeholderTextColor="#a0aec0" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+            <TextInput style={styles.input} placeholder={t('qr.placeholderPhone')} placeholderTextColor="#a0aec0" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
           )}
         </View>
-        
+
         <TouchableOpacity style={styles.generateBtn} onPress={generateQR}>
-          <Text style={styles.generateBtnText}>Päivitä QR-koodi</Text>
+          <Text style={styles.generateBtnText}>{t('qr.refresh')}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 2. Tulos-laatikko */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Valmis koodi</Text>
-        
+        <Text style={styles.sectionTitle}>{t('qr.readyCode')}</Text>
+
         <View style={styles.qrContainer}>
-          {/* Näytetään kuva suoraan rajapinnasta */}
           <Image source={{ uri: qrImageUrl }} style={styles.qrImage} />
         </View>
 
-        <Text style={styles.helperText}>
-          Voit ottaa koodista näyttökuvan (Screenshot) ja jakaa sen!
-        </Text>
+        <Text style={styles.helperText}>{t('qr.screenshotHint')}</Text>
       </View>
-
     </ScrollView>
   );
 }
@@ -201,5 +188,5 @@ const styles = StyleSheet.create({
     color: '#a0aec0',
     textAlign: 'center',
     fontSize: 14,
-  }
+  },
 });

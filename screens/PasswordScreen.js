@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Switch, StyleSheet, ScrollView } from 'react-native';
-import * as Clipboard from 'expo-clipboard'; // Vaatii 'expo-clipboard' -paketin asennuksen myöhemmin
+import * as Clipboard from 'expo-clipboard';
+import { useTranslation } from '../i18n';
 
 export default function PasswordScreen() {
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
   const [lowers, setLowers] = useState(true);
@@ -11,30 +13,28 @@ export default function PasswordScreen() {
   const [specials, setSpecials] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Arvotaan salasana heti kun sivu aukeaa
   useEffect(() => {
     generatePassword();
-  }, [length, lowers, uppers, numbers, specials]); // Päivittyy aina kun asetuksia muutetaan
+  }, [length, lowers, uppers, numbers, specials]);
 
   const generatePassword = () => {
-    const lowerChars = "abcdefghijklmnopqrstuvwxyz";
-    const upperChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    const numberChars = "0123456789";
-    const specialChars = "!@#$%^&*()_+~`|}{[]:;?><,./-=";
+    const lowerChars = 'abcdefghijklmnopqrstuvwxyz';
+    const upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numberChars = '0123456789';
+    const specialChars = '!@#$%^&*()_+~`|}{[]:;?><,./-=';
 
-    let allowed = "";
+    let allowed = '';
     if (lowers) allowed += lowerChars;
     if (uppers) allowed += upperChars;
     if (numbers) allowed += numberChars;
     if (specials) allowed += specialChars;
 
-    // Pakotetaan vähintään pienet kirjaimet, jos kaikki ruksit otetaan pois
     if (allowed.length === 0) {
       allowed = lowerChars;
       setLowers(true);
     }
 
-    let newPass = "";
+    let newPass = '';
     for (let i = 0; i < length; i++) {
       const randomIndex = Math.floor(Math.random() * allowed.length);
       newPass += allowed[randomIndex];
@@ -47,16 +47,15 @@ export default function PasswordScreen() {
     if (!password) return;
     await Clipboard.setStringAsync(password);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // Palautetaan napin teksti 2s kuluttua
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  // Apukomponentti kytkimille (vähentää toistoa koodissa)
   const ToggleRow = ({ label, value, onValueChange }) => (
     <View style={styles.toggleRow}>
       <Text style={styles.toggleText}>{label}</Text>
-      <Switch 
-        value={value} 
-        onValueChange={onValueChange} 
+      <Switch
+        value={value}
+        onValueChange={onValueChange}
         trackColor={{ false: '#4a5568', true: '#ffaa00' }}
         thumbColor={value ? '#11141d' : '#a0aec0'}
       />
@@ -65,13 +64,11 @@ export default function PasswordScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      
-      {/* Asetukset-laatikko */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>1. Muokkaa asetuksia</Text>
-        
+        <Text style={styles.sectionTitle}>{t('password.settingsTitle')}</Text>
+
         <View style={styles.lengthContainer}>
-          <Text style={styles.toggleText}>Pituus:</Text>
+          <Text style={styles.toggleText}>{t('password.length')}</Text>
           <View style={styles.counter}>
             <TouchableOpacity onPress={() => setLength(Math.max(6, length - 1))} style={styles.counterBtn}>
               <Text style={styles.counterBtnText}>-</Text>
@@ -83,34 +80,27 @@ export default function PasswordScreen() {
           </View>
         </View>
 
-        <ToggleRow label="Pienet kirjaimet (a-z)" value={lowers} onValueChange={setLowers} />
-        <ToggleRow label="Isot kirjaimet (A-Z)" value={uppers} onValueChange={setUppers} />
-        <ToggleRow label="Numerot (0-9)" value={numbers} onValueChange={setNumbers} />
-        <ToggleRow label="Erikoismerkit (!@#...)" value={specials} onValueChange={setSpecials} />
-        
+        <ToggleRow label={t('password.lower')} value={lowers} onValueChange={setLowers} />
+        <ToggleRow label={t('password.upper')} value={uppers} onValueChange={setUppers} />
+        <ToggleRow label={t('password.numbers')} value={numbers} onValueChange={setNumbers} />
+        <ToggleRow label={t('password.specials')} value={specials} onValueChange={setSpecials} />
+
         <TouchableOpacity style={styles.generateBtn} onPress={generatePassword}>
-          <Text style={styles.generateBtnText}>🔄 Arvo uusi salasana</Text>
+          <Text style={styles.generateBtnText}>{t('password.generate')}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Tulos-laatikko */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Valmis salasana</Text>
-        
+        <Text style={styles.sectionTitle}>{t('password.ready')}</Text>
+
         <View style={styles.passwordBox}>
           <Text style={styles.passwordText}>{password}</Text>
         </View>
 
-        <TouchableOpacity 
-          style={[styles.copyBtn, copied && styles.copyBtnSuccess]} 
-          onPress={copyToClipboard}
-        >
-          <Text style={styles.copyBtnText}>
-            {copied ? '✅ Kopioitu!' : '📋 Kopioi leikepöydälle'}
-          </Text>
+        <TouchableOpacity style={[styles.copyBtn, copied && styles.copyBtnSuccess]} onPress={copyToClipboard}>
+          <Text style={styles.copyBtnText}>{copied ? t('password.copied') : t('password.copy')}</Text>
         </TouchableOpacity>
       </View>
-
     </ScrollView>
   );
 }
@@ -204,22 +194,22 @@ const styles = StyleSheet.create({
   passwordText: {
     color: '#ffaa00',
     fontSize: 20,
-    fontFamily: 'monospace', // Toimii myös monilla mobiililaitteilla koodimaisena fonttina
+    fontFamily: 'monospace',
     textAlign: 'center',
     letterSpacing: 2,
   },
   copyBtn: {
-    backgroundColor: '#3b82f6', // Sininen alkuperäisen tyylin mukaan
+    backgroundColor: '#3b82f6',
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
   },
   copyBtnSuccess: {
-    backgroundColor: '#22c55e', // Vihreä kun kopioitu
+    backgroundColor: '#22c55e',
   },
   copyBtnText: {
     color: 'white',
     fontWeight: 'bold',
     fontSize: 16,
-  }
+  },
 });
