@@ -37,6 +37,8 @@ const translations = {
         shareDesc: 'Lataa ja jaa tiedostoja',
         passwordTitle: '🔑 Salasanakone',
         passwordDesc: 'Luo vahvoja salasanoja',
+        downloadAppTitle: 'Päivitä sovellus',
+        downloadAppDesc: 'Lataa uusin Android-versio (APK)',
       },
     },
     password: {
@@ -152,6 +154,8 @@ const translations = {
         shareDesc: 'Upload and share files',
         passwordTitle: '🔑 Password Generator',
         passwordDesc: 'Create strong passwords',
+        downloadAppTitle: 'Update App',
+        downloadAppDesc: 'Download the latest Android version (APK)',
       },
     },
     password: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native';
 import { useTranslation } from '../i18n';
 
 export default function HomeScreen({ navigation }) {
@@ -11,6 +11,7 @@ export default function HomeScreen({ navigation }) {
     { id: 'QR', title: t('home.tools.qrTitle'), desc: t('home.tools.qrDesc') },
     { id: 'Share', title: t('home.tools.shareTitle'), desc: t('home.tools.shareDesc') },
     { id: 'Password', title: t('home.tools.passwordTitle'), desc: t('home.tools.passwordDesc') },
+    { id: 'Download', title: t('home.tools.downloadAppTitle'), desc: t('home.tools.downloadAppDesc'), url: 'https://github.com/Domainmasteri/sorola-app/releases/latest' },
   ];
 
   return (
@@ -36,7 +37,17 @@ export default function HomeScreen({ navigation }) {
 
       <View style={styles.buttonContainer}>
         {tools.map((tool) => (
-          <TouchableOpacity key={tool.id} style={styles.card} onPress={() => navigation.navigate(tool.id)}>
+          <TouchableOpacity
+            key={tool.id}
+            style={styles.card}
+            onPress={() => {
+              if (tool.url) {
+                Linking.openURL(tool.url);
+              } else {
+                navigation.navigate(tool.id);
+              }
+            }}
+          >
             <Text style={styles.cardTitle}>{tool.title}</Text>
             <Text style={styles.cardDesc}>{tool.desc}</Text>
           </TouchableOpacity>
