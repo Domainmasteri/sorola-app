@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Linking } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
 
@@ -135,6 +135,15 @@ export default function ShareScreen() {
             </Text>
           )}
 
+          {/* Salaus-huomautus */}
+          <Text style={styles.infoText}>
+            Jos haluat salata tiedoston päästä-päähän-salauksella, se onnistuu{' '}
+            <Text style={styles.linkText} onPress={() => Linking.openURL('https://sorola.fi/jako')}>
+              Sorolan
+            </Text>
+            {' '}nettisivuilla.
+          </Text>
+
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
           {/* Lähetys */}
@@ -212,6 +221,18 @@ const styles = StyleSheet.create({
   },
   filePickerText: { color: '#e2e8f0', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   fileSizeText: { color: '#a0aec0', fontSize: 12, textAlign: 'center', marginBottom: 20 },
+  infoText: {
+    color: '#a0aec0',
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  linkText: {
+    color: '#ffaa00',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
   errorText: { color: '#ef4444', marginBottom: 10, textAlign: 'center', fontWeight: 'bold' },
   generateBtn: { backgroundColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center' },
   generateBtnDisabled: { backgroundColor: '#a0aec0' },
