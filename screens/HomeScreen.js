@@ -11,11 +11,11 @@ export default function HomeScreen({ navigation }) {
     { id: 'QR', title: t('home.tools.qrTitle'), desc: t('home.tools.qrDesc') },
     { id: 'Share', title: t('home.tools.shareTitle'), desc: t('home.tools.shareDesc') },
     { id: 'Password', title: t('home.tools.passwordTitle'), desc: t('home.tools.passwordDesc') },
-    { id: 'Download', title: t('home.tools.downloadAppTitle'), desc: t('home.tools.downloadAppDesc'), url: 'https://github.com/Domainmasteri/sorola-app/releases/latest' },
+    { id: 'Download', title: t('home.tools.downloadAppTitle'), desc: t('home.tools.downloadAppDesc'), url: 'https://soro.la/sovellus' },
   ];
 
   return (
-    <ScrollView style={styles.container}>
+     <ScrollView style={styles.wrapper} contentContainerStyle={styles.container}>
       <View style={styles.languageRow}>
         <Text style={styles.languageLabel}>{t('language.label')}:</Text>
         <TouchableOpacity
@@ -58,9 +58,12 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
+  wrapper: {
     flex: 1,
+  },
+  container {
     padding: 20,
+    paddingBottom: 60,
   },
   languageRow: {
     flexDirection: 'row',
