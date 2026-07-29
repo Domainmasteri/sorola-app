@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
   },
-  container {
+  container: {
     padding: 20,
     paddingBottom: 60,
   },
