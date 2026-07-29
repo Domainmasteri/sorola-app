@@ -1,32 +1,26 @@
-# Sorolan Työkalut / Sorola Tools App
+# Sorolan Työkalut -mobiilisovellus
 
-🇺🇸 [English](#english) | 🇫🇮 [Suomi](#suomi)
+Tervetuloa **Sorolan Työkalut** -mobiilisovelluksen repositorioon. Tämä on React Nativella (Expo) rakennettu natiivi Android-sovellus, joka toimii nopeana ja turvallisena mobiilikäyttöliittymänä `sorola.fi`-sivuston IT-työkaluille.
 
----
+### ✨ Ominaisuudet & Työkalut
 
-## 🇺🇸 English
+*   **🔗 Linkinlyhennin:** Yhdistää suoraan Sorolan omaan lyhenninrajapintaan.
+*   **🔑 Salasanageneraattori:** 100 % paikallisesti toimiva työkalu vahvojen salasanojen luontiin.
+*   **📁 Tiedostonjako:** Turvallinen lähetyspalvelu, jossa on mukana valinnainen puhelimen oma pään-yli -salaus (AES-256-GCM).
+*   **🔲 QR-koodigeneraattori:** Nopea QR-koodien luonti verkko-osoitteille, Wi-Fi-verkoille ja tekstille.
+*   **📝 Pastebin:** Turvallinen koodin ja tekstin jako.
+*   **🌐 Monikielisyys:** Vaihda lennosta suomen ja englannin välillä.
+*   **🔄 OTA-päivitykset:** Expon sisäänrakennettu tuki langattomille päivityksille (Over-The-Air).
 
-Welcome to the **Sorola Tools** mobile app repository. This is a React Native (Expo) built native Android application that serves as a fast and secure mobile client for the custom-built IT tools hosted at `sorola.fi`.
+### 🛠️ Teknologiat
 
-### ✨ Features & Tools
+*   **Kehys:** React Native / Expo
+*   **Reititys:** React Navigation (Native Stack)
+*   **Salaus:** `node-forge` (AES-256-GCM)
+*   **Käännökset:** EAS (Expo Application Services)
 
-*   **🔗 Link Shortener:** Custom URL shortener connecting directly to the Sorola API.
-*   **🔑 Password Generator:** 100% offline secure password creation tool.
-*   **📁 File Sharing:** Secure upload service with optional client-side AES-256-GCM encryption.
-*   **🔲 QR Code Generator:** Quick QR code creation for URLs, Wi-Fi, and text.
-*   **📝 Pastebin:** Fast and secure text and code sharing.
-*   **🌐 Multilingual UI:** Seamlessly switch between Finnish and English.
-*   **🔄 OTA Updates:** Built-in Expo Updates for seamless over-the-air improvements.
+### 🚀 Aloitusopas (Kehitys)
 
-### 🛠️ Tech Stack
-
-*   **Framework:** React Native / Expo
-*   **Navigation:** React Navigation (Native Stack)
-*   **Cryptography:** `node-forge` (AES-256-GCM)
-*   **Build System:** EAS (Expo Application Services)
-
-### 🚀 Getting Started (Development)
-
-1. **Clone the repo:**
+1. **Kloonaa repo:**
    ```bash
    git clone [https://github.com/Domainmasteri/sorola-app.git](https://github.com/Domainmasteri/sorola-app.git)
