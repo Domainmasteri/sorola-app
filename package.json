@@ -25,5 +25,14 @@
   "devDependencies": {
     "@babel/core": "^7.25.2"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "yargs@<18.1.0": "18.1.0",
+    "@expo/bunyan": {
+      "uuid": "https://npm.aikido.io/1f6017cee9004c1cbfbac/uuid@8.3.2-aikido.5"
+    },
+    "@expo/rudder-sdk-node": {
+      "uuid": "https://npm.aikido.io/1f6017cee9004c1cbfbac/uuid@8.3.2-aikido.5"
+    }
+  }
 }
