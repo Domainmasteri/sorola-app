@@ -25,5 +25,8 @@
   "devDependencies": {
     "@babel/core": "^7.25.2"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "yargs@<18.1.0": "18.1.0"
+  }
 }
