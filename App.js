@@ -1,21 +1,30 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Updates from 'expo-updates';
 
 import HomeScreen from './screens/HomeScreen';
+import JsonFormatterScreen from './screens/JsonFormatterScreen';
 import PasswordScreen from './screens/PasswordScreen';
 import QRScreen from './screens/QRScreen';
 import ShortenerScreen from './screens/ShortenerScreen';
 import PastebinScreen from './screens/PastebinScreen';
 import ShareScreen from './screens/ShareScreen';
+import ToolHelpScreen from './screens/ToolHelpScreen';
+import { initializeAnalytics, trackScreenView } from './analytics';
 import { TranslationProvider, useTranslation } from './i18n';
 
 const Stack = createNativeStackNavigator();
 
 function AppNavigator() {
   const { t } = useTranslation();
+  const navigationRef = useNavigationContainerRef();
+  const routeNameRef = useRef();
+
+  useEffect(() => {
+    initializeAnalytics();
+  }, []);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -58,7 +67,27 @@ function AppNavigator() {
   }, [t]);
 
   return (
-    <NavigationContainer>
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        const routeName = navigationRef.getCurrentRoute()?.name;
+        routeNameRef.current = routeName;
+
+        if (routeName) {
+          void trackScreenView(routeName);
+        }
+      }}
+      onStateChange={() => {
+        const routeName = navigationRef.getCurrentRoute()?.name;
+
+        if (!routeName || routeNameRef.current === routeName) {
+          return;
+        }
+
+        routeNameRef.current = routeName;
+        void trackScreenView(routeName);
+      }}
+    >
       <Stack.Navigator
         initialRouteName="Home"
         screenOptions={{
@@ -74,6 +103,8 @@ function AppNavigator() {
         <Stack.Screen name="Shortener" component={ShortenerScreen} options={{ title: t('nav.shortener') }} />
         <Stack.Screen name="Pastebin" component={PastebinScreen} options={{ title: t('nav.pastebin') }} />
         <Stack.Screen name="Share" component={ShareScreen} options={{ title: t('nav.share') }} />
+        <Stack.Screen name="JsonFormatter" component={JsonFormatterScreen} options={{ title: t('nav.jsonFormatter') }} />
+        <Stack.Screen name="ToolHelp" component={ToolHelpScreen} options={{ title: t('nav.help') }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
