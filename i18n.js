@@ -412,7 +412,7 @@ export function TranslationProvider({ children }) {
       }
 
       return Object.entries(values).reduce(
-        (result, [key, replacement]) => result.replaceAll(`{${key}}`, String(replacement)),
+        (result, [key, replacement]) => result.split(`{${key}}`).join(String(replacement)),
         template
       );
     };

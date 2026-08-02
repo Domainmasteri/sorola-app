@@ -8,7 +8,18 @@ let webAnalyticsInitialized = false;
 let lastTrackedUrl = '';
 
 function getScreenUrl(screenName) {
-  return `app://sorola/${String(screenName || 'home').toLowerCase()}`;
+  const routes = {
+    Home: 'https://sorola.fi/',
+    Shortener: 'https://sorola.fi/lyhennin/',
+    Pastebin: 'https://sorola.fi/pastebin/',
+    QR: 'https://sorola.fi/qr/',
+    Share: 'https://sorola.fi/jako/',
+    Password: 'https://sorola.fi/salasanat/',
+    JsonFormatter: 'https://sorola.fi/json/',
+    ToolHelp: 'https://sorola.fi/ohjeet/',
+  };
+
+  return routes[screenName] || 'https://sorola.fi/';
 }
 
 export function initializeAnalytics() {
