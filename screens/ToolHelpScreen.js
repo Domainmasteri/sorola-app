@@ -57,6 +57,17 @@ export default function ToolHelpScreen({ navigation }) {
       ],
     },
     {
+      id: 'Vaultwarden',
+      title: t('home.tools.vaultwardenTitle'),
+      description: t('help.tools.vaultwarden.description'),
+      steps: [
+        t('help.tools.vaultwarden.step1'),
+        t('help.tools.vaultwarden.step2'),
+        t('help.tools.vaultwarden.step3'),
+      ],
+      url: 'https://vault.sorola.fi/',
+    },
+    {
       id: 'Download',
       title: t('home.tools.downloadAppTitle'),
       description: t('help.tools.download.description'),
@@ -78,6 +89,16 @@ export default function ToolHelpScreen({ navigation }) {
         t('help.tools.jsonFormatter.step1'),
         t('help.tools.jsonFormatter.step2'),
         t('help.tools.jsonFormatter.step3'),
+      ],
+    },
+    {
+      id: 'Base64',
+      title: t('home.tools.base64Title'),
+      description: t('help.tools.base64.description'),
+      steps: [
+        t('help.tools.base64.step1'),
+        t('help.tools.base64.step2'),
+        t('help.tools.base64.step3'),
       ],
     },
   ];

@@ -11,10 +11,12 @@ export default function HomeScreen({ navigation }) {
     { id: 'QR', title: t('home.tools.qrTitle'), desc: t('home.tools.qrDesc') },
     { id: 'Share', title: t('home.tools.shareTitle'), desc: t('home.tools.shareDesc') },
     { id: 'Password', title: t('home.tools.passwordTitle'), desc: t('home.tools.passwordDesc') },
+    { id: 'Vaultwarden', title: t('home.tools.vaultwardenTitle'), desc: t('home.tools.vaultwardenDesc'), url: 'https://vault.sorola.fi/' },
     { id: 'Download', title: t('home.tools.downloadAppTitle'), desc: t('home.tools.downloadAppDesc'), url: 'https://soro.la/sovellus' },
   ];
   const advancedTools = [
     { id: 'JsonFormatter', title: t('home.tools.jsonFormatterTitle'), desc: t('home.tools.jsonFormatterDesc') },
+    { id: 'Base64', title: t('home.tools.base64Title'), desc: t('home.tools.base64Desc') },
   ];
 
   const renderTools = (tools) => (
@@ -62,6 +64,16 @@ export default function HomeScreen({ navigation }) {
       <TouchableOpacity style={styles.helpCard} onPress={() => navigation.navigate('ToolHelp')}>
         <Text style={styles.helpCardTitle}>{t('home.helpButtonTitle')}</Text>
         <Text style={styles.helpCardDesc}>{t('home.helpButtonDesc')}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.helpCard} onPress={() => navigation.navigate('Changelog')}>
+        <Text style={styles.helpCardTitle}>{t('home.changelogButtonTitle')}</Text>
+        <Text style={styles.helpCardDesc}>{t('home.changelogButtonDesc')}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.helpCard} onPress={() => navigation.navigate('Privacy')}>
+        <Text style={styles.helpCardTitle}>{t('home.privacyButtonTitle')}</Text>
+        <Text style={styles.helpCardDesc}>{t('home.privacyButtonDesc')}</Text>
       </TouchableOpacity>
 
       <View style={styles.sectionHeader}>
