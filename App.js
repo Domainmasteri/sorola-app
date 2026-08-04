@@ -12,6 +12,9 @@ import ShortenerScreen from './screens/ShortenerScreen';
 import PastebinScreen from './screens/PastebinScreen';
 import ShareScreen from './screens/ShareScreen';
 import ToolHelpScreen from './screens/ToolHelpScreen';
+import Base64Screen from './screens/Base64Screen';
+import ChangelogScreen from './screens/ChangelogScreen';
+import PrivacyScreen from './screens/PrivacyScreen';
 import { initializeAnalytics, trackScreenView } from './analytics';
 import { TranslationProvider, useTranslation } from './i18n';
 
@@ -104,6 +107,9 @@ function AppNavigator() {
         <Stack.Screen name="Pastebin" component={PastebinScreen} options={{ title: t('nav.pastebin') }} />
         <Stack.Screen name="Share" component={ShareScreen} options={{ title: t('nav.share') }} />
         <Stack.Screen name="JsonFormatter" component={JsonFormatterScreen} options={{ title: t('nav.jsonFormatter') }} />
+        <Stack.Screen name="Base64" component={Base64Screen} options={{ title: t('home.tools.base64Title') }} />
+        <Stack.Screen name="Changelog" component={ChangelogScreen} options={{ title: t('home.changelogButtonTitle') }} />
+        <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: t('home.privacyButtonTitle') }} />
         <Stack.Screen name="ToolHelp" component={ToolHelpScreen} options={{ title: t('nav.help') }} />
       </Stack.Navigator>
     </NavigationContainer>

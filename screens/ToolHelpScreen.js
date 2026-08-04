@@ -80,6 +80,16 @@ export default function ToolHelpScreen({ navigation }) {
         t('help.tools.jsonFormatter.step3'),
       ],
     },
+    {
+      id: 'Base64',
+      title: t('home.tools.base64Title'),
+      description: t('help.tools.base64.description'),
+      steps: [
+        t('help.tools.base64.step1'),
+        t('help.tools.base64.step2'),
+        t('help.tools.base64.step3'),
+      ],
+    },
   ];
 
   const openTool = (tool) => {
