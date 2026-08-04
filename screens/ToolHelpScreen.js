@@ -57,17 +57,6 @@ export default function ToolHelpScreen({ navigation }) {
       ],
     },
     {
-      id: 'Vaultwarden',
-      title: t('home.tools.vaultwardenTitle'),
-      description: t('help.tools.vaultwarden.description'),
-      steps: [
-        t('help.tools.vaultwarden.step1'),
-        t('help.tools.vaultwarden.step2'),
-        t('help.tools.vaultwarden.step3'),
-      ],
-      url: 'https://vault.sorola.fi/',
-    },
-    {
       id: 'Download',
       title: t('home.tools.downloadAppTitle'),
       description: t('help.tools.download.description'),
