@@ -19,8 +19,8 @@ class ApiError extends Error {
   }
 }
 
-const getMissingApiKeyMessage = () => 'API key missing. Save a valid API key in the app settings before using Sorola API.';
-const getRejectedApiKeyMessage = () => 'API key rejected by Sorola API. Update the saved API key and try again.';
+const MISSING_API_KEY_MESSAGE = 'API key missing. Save a valid API key in the app settings before using Sorola API.';
+const REJECTED_API_KEY_MESSAGE = 'API key rejected by Sorola API. Update the saved API key and try again.';
 
 export const getApiKey = async () => {
   const apiKey = await AsyncStorage.getItem(API_KEY_STORAGE_KEY);
@@ -43,7 +43,7 @@ const buildHeaders = async (headers = {}) => {
   const apiKey = await getApiKey();
 
   if (!apiKey) {
-    throw new ApiError(getMissingApiKeyMessage(), 0);
+    throw new ApiError(MISSING_API_KEY_MESSAGE, 0);
   }
 
   return {
@@ -62,7 +62,7 @@ const parseResponse = async (response) => {
   }
 
   if (response.status === 401 || response.status === 403) {
-    throw new ApiError(getRejectedApiKeyMessage(), response.status, data);
+    throw new ApiError(REJECTED_API_KEY_MESSAGE, response.status, data);
   }
 
   const errorMessage = (data && typeof data === 'object' && data.error)

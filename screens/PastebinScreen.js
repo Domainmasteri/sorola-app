@@ -25,10 +25,10 @@ export default function PastebinScreen() {
     try {
       const data = await createPaste(content);
 
-      if (data.success) {
+      if (data && typeof data === 'object' && data.success) {
         setPasteUrl(buildPasteUrl(data.path));
       } else {
-        setErrorMsg(data.error || t('pastebin.saveError'));
+        setErrorMsg((data && typeof data === 'object' && data.error) || t('pastebin.saveError'));
       }
     } catch (error) {
       setErrorMsg(error instanceof ApiError ? error.message : t('pastebin.serverError'));

@@ -1,8 +1,9 @@
 import { Platform } from 'react-native';
 
-export const PLAUSIBLE_DOMAIN = 'sorola-app.fi';
+export const PLAUSIBLE_DOMAIN = 'sorola.fi';
 export const PLAUSIBLE_SCRIPT_URL = 'https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.tagged-events.js';
 export const PLAUSIBLE_EVENT_URL = 'https://plausible.io/api/event';
+export const PLAUSIBLE_BASE_URL = 'https://sorola.fi';
 
 const APP_SOURCE = 'sorola-app';
 
@@ -11,19 +12,19 @@ let lastTrackedUrl = '';
 
 function getScreenUrl(screenName) {
   const routes = {
-    Home: 'https://sorola.fi/',
-    Shortener: 'https://sorola.fi/lyhennin/',
-    Pastebin: 'https://sorola.fi/pastebin/',
-    QR: 'https://sorola.fi/qr/',
-    Share: 'https://sorola.fi/jako/',
-    Password: 'https://sorola.fi/salasanat/',
-    JsonFormatter: 'https://sorola.fi/json/',
-    ToolHelp: 'https://sorola.fi/ohjeet/',
-    Changelog: 'https://sorola.fi/sovellus/muutoshistoria/',
-    Privacy: 'https://sorola.fi/sovellus/tietosuoja/',
+    Home: `${PLAUSIBLE_BASE_URL}/`,
+    Shortener: `${PLAUSIBLE_BASE_URL}/lyhennin/`,
+    Pastebin: `${PLAUSIBLE_BASE_URL}/pastebin/`,
+    QR: `${PLAUSIBLE_BASE_URL}/qr/`,
+    Share: `${PLAUSIBLE_BASE_URL}/jako/`,
+    Password: `${PLAUSIBLE_BASE_URL}/salasanat/`,
+    JsonFormatter: `${PLAUSIBLE_BASE_URL}/json/`,
+    ToolHelp: `${PLAUSIBLE_BASE_URL}/ohjeet/`,
+    Changelog: `${PLAUSIBLE_BASE_URL}/sovellus/muutoshistoria/`,
+    Privacy: `${PLAUSIBLE_BASE_URL}/sovellus/tietosuoja/`,
   };
 
-  return routes[screenName] || 'https://sorola.fi/';
+  return routes[screenName] || `${PLAUSIBLE_BASE_URL}/`;
 }
 
 function createEventPayload(name, url, props = {}) {

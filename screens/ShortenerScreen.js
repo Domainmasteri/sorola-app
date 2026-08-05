@@ -28,11 +28,11 @@ export default function ShortenerScreen() {
     try {
       const data = await shortenUrlRequest(url, domain);
 
-      if (data.success && data.shortUrl) {
+      if (data && typeof data === 'object' && data.success && data.shortUrl) {
         setShortUrl(data.shortUrl);
         setUrl('');
       } else {
-        setErrorMsg(data.error || t('shortener.createError'));
+        setErrorMsg((data && typeof data === 'object' && data.error) || t('shortener.createError'));
       }
     } catch (error) {
       setErrorMsg(error instanceof ApiError ? error.message : t('shortener.serverError'));
