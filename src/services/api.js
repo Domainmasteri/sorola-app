@@ -2,12 +2,11 @@ const DEFAULT_API_URL = 'https://api.sorola.fi';
 const DEFAULT_SITE_URL = 'https://sorola.fi';
 
 const normalizeBaseUrl = (value) => (value || DEFAULT_API_URL).replace(/\/+$/, '');
+const normalizeSiteUrl = (value) => (value || DEFAULT_SITE_URL).replace(/\/+$/, '');
 
 const API_BASE_URL = normalizeBaseUrl(process.env.EXPO_PUBLIC_API_URL);
 const API_KEY = process.env.EXPO_PUBLIC_API_KEY;
-const PUBLIC_BASE_URL = API_BASE_URL === DEFAULT_API_URL
-  ? DEFAULT_SITE_URL
-  : API_BASE_URL.replace(/\/api$/i, '');
+const PUBLIC_BASE_URL = normalizeSiteUrl(process.env.EXPO_PUBLIC_SITE_URL);
 
 class ApiError extends Error {
   constructor(message, status, data) {
@@ -62,9 +61,15 @@ const apiRequest = async (path, options = {}) => {
   return parseResponse(response);
 };
 
-export const shortenUrl = async (url, domain) => apiRequest(
-  `/lyhennin/create?url=${encodeURIComponent(url)}&domain=${encodeURIComponent(domain)}`,
-);
+export const shortenUrl = async (url, domain) => {
+  const params = new URLSearchParams({ url });
+
+  if (domain) {
+    params.append('domain', domain);
+  }
+
+  return apiRequest(`/lyhennin/create?${params.toString()}`);
+};
 
 export const createPaste = async (content) => apiRequest('/paste', {
   method: 'POST',

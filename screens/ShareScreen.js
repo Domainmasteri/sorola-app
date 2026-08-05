@@ -44,10 +44,10 @@ export default function ShareScreen() {
     try {
       const data = await uploadFileRequest(file, { expiryDays, maxDownloads });
 
-      if (data.id) {
+      if (data && typeof data === 'object' && data.id) {
         setShareUrl(buildShareUrl(data.id));
       } else {
-        setErrorMsg(data.error || t('share.uploadError'));
+        setErrorMsg((data && typeof data === 'object' && data.error) || t('share.uploadError'));
       }
     } catch (error) {
       setErrorMsg(error instanceof ApiError ? error.message : t('share.serverError'));
