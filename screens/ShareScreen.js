@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Activi
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
+import { uploadFile as uploadFileRequest, buildShareUrl, ApiError } from '../src/services/api';
 
 export default function ShareScreen() {
   const { t } = useTranslation();
@@ -41,33 +42,15 @@ export default function ShareScreen() {
     setShareUrl('');
 
     try {
-      const formData = new FormData();
+      const data = await uploadFileRequest(file, { expiryDays, maxDownloads });
 
-      formData.append('file', {
-        uri: file.uri,
-        name: file.name,
-        type: file.mimeType || 'application/octet-stream',
-      });
-      formData.append('expiryDays', String(expiryDays));
-      formData.append('maxDownloads', String(maxDownloads));
-
-      const response = await fetch('https://sorola.fi/api/upload', {
-        method: 'POST',
-        body: formData,
-        headers: {
-          Accept: 'application/json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok && data.id) {
-        setShareUrl(`https://sorola.fi/d/${data.id}`);
+      if (data && typeof data === 'object' && data.id) {
+        setShareUrl(buildShareUrl(data.id));
       } else {
-        setErrorMsg(data.error || t('share.uploadError'));
+        setErrorMsg((data && typeof data === 'object' && data.error) || t('share.uploadError'));
       }
-    } catch {
-      setErrorMsg(t('share.serverError'));
+    } catch (error) {
+      setErrorMsg(error instanceof ApiError ? error.message : t('share.serverError'));
     } finally {
       setIsLoading(false);
     }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
+import { shortenUrl as shortenUrlRequest, ApiError } from '../src/services/api';
 
 export default function ShortenerScreen() {
   const { t } = useTranslation();
@@ -25,19 +26,16 @@ export default function ShortenerScreen() {
     setShortUrl('');
 
     try {
-      const apiUrl = `https://sorola.fi/api/lyhennin/create?url=${encodeURIComponent(url)}&domain=${encodeURIComponent(domain)}`;
+      const data = await shortenUrlRequest(url, domain);
 
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-
-      if (data.success && data.shortUrl) {
+      if (data && typeof data === 'object' && data.success && data.shortUrl) {
         setShortUrl(data.shortUrl);
         setUrl('');
       } else {
-        setErrorMsg(data.error || t('shortener.createError'));
+        setErrorMsg((data && typeof data === 'object' && data.error) || t('shortener.createError'));
       }
-    } catch {
-      setErrorMsg(t('shortener.serverError'));
+    } catch (error) {
+      setErrorMsg(error instanceof ApiError ? error.message : t('shortener.serverError'));
     } finally {
       setIsLoading(false);
     }

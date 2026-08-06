@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
+import { createPaste, buildPasteUrl, ApiError } from '../src/services/api';
 
 export default function PastebinScreen() {
   const { t } = useTranslation();
@@ -22,23 +23,15 @@ export default function PastebinScreen() {
     setPasteUrl('');
 
     try {
-      const response = await fetch('https://sorola.fi/api/paste', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ content }),
-      });
+      const data = await createPaste(content);
 
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        setPasteUrl(`https://sorola.fi/p/${data.path}`);
+      if (data && typeof data === 'object' && data.success) {
+        setPasteUrl(buildPasteUrl(data.path));
       } else {
-        setErrorMsg(data.error || t('pastebin.saveError'));
+        setErrorMsg((data && typeof data === 'object' && data.error) || t('pastebin.saveError'));
       }
-    } catch {
-      setErrorMsg(t('pastebin.serverError'));
+    } catch (error) {
+      setErrorMsg(error instanceof ApiError ? error.message : t('pastebin.serverError'));
     } finally {
       setIsLoading(false);
     }

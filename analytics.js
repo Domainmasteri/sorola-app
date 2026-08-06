@@ -1,25 +1,57 @@
 import { Platform } from 'react-native';
 
-const PLAUSIBLE_DOMAIN = 'sorola.fi';
-const PLAUSIBLE_SCRIPT_URL = 'https://plausible.io/js/pa-YNdLPWi1IRdbPeUxj0Qa6.js';
-const PLAUSIBLE_EVENT_URL = 'https://plausible.io/api/event';
+export const PLAUSIBLE_DOMAIN = 'sorola.fi';
+export const PLAUSIBLE_SCRIPT_URL = 'https://plausible.io/js/script.file-downloads.hash.outbound-links.pageview-props.tagged-events.js';
+export const PLAUSIBLE_EVENT_URL = 'https://plausible.io/api/event';
+export const PLAUSIBLE_BASE_URL = 'https://sorola.fi';
+
+const APP_SOURCE = 'sorola-app';
 
 let webAnalyticsInitialized = false;
 let lastTrackedUrl = '';
 
 function getScreenUrl(screenName) {
   const routes = {
-    Home: 'https://sorola.fi/',
-    Shortener: 'https://sorola.fi/lyhennin/',
-    Pastebin: 'https://sorola.fi/pastebin/',
-    QR: 'https://sorola.fi/qr/',
-    Share: 'https://sorola.fi/jako/',
-    Password: 'https://sorola.fi/salasanat/',
-    JsonFormatter: 'https://sorola.fi/json/',
-    ToolHelp: 'https://sorola.fi/ohjeet/',
+    Home: `${PLAUSIBLE_BASE_URL}/`,
+    Shortener: `${PLAUSIBLE_BASE_URL}/lyhennin/`,
+    Pastebin: `${PLAUSIBLE_BASE_URL}/pastebin/`,
+    QR: `${PLAUSIBLE_BASE_URL}/qr/`,
+    Share: `${PLAUSIBLE_BASE_URL}/jako/`,
+    Password: `${PLAUSIBLE_BASE_URL}/salasanat/`,
+    JsonFormatter: `${PLAUSIBLE_BASE_URL}/json/`,
+    ToolHelp: `${PLAUSIBLE_BASE_URL}/ohjeet/`,
+    Changelog: `${PLAUSIBLE_BASE_URL}/sovellus/muutoshistoria/`,
+    Privacy: `${PLAUSIBLE_BASE_URL}/sovellus/tietosuoja/`,
   };
 
-  return routes[screenName] || 'https://sorola.fi/';
+  return routes[screenName] || `${PLAUSIBLE_BASE_URL}/`;
+}
+
+function createEventPayload(name, url, props = {}) {
+  return {
+    name,
+    url,
+    domain: PLAUSIBLE_DOMAIN,
+    props: {
+      source: APP_SOURCE,
+      platform: Platform.OS,
+      ...props,
+    },
+  };
+}
+
+async function sendNativeEvent(name, url, props = {}) {
+  try {
+    await fetch(PLAUSIBLE_EVENT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      body: JSON.stringify(createEventPayload(name, url, props)),
+    });
+  } catch {
+    // Ignore analytics failures silently.
+  }
 }
 
 export function initializeAnalytics() {
@@ -30,6 +62,8 @@ export function initializeAnalytics() {
   if (!document.querySelector(`script[src="${PLAUSIBLE_SCRIPT_URL}"]`)) {
     const script = document.createElement('script');
     script.async = true;
+    script.defer = true;
+    script.dataset.domain = PLAUSIBLE_DOMAIN;
     script.src = PLAUSIBLE_SCRIPT_URL;
     document.head.appendChild(script);
   }
@@ -37,10 +71,6 @@ export function initializeAnalytics() {
   window.plausible = window.plausible || function() {
     (window.plausible.q = window.plausible.q || []).push(arguments);
   };
-  window.plausible.init = window.plausible.init || function(options) {
-    window.plausible.o = options || {};
-  };
-  window.plausible.init();
 
   webAnalyticsInitialized = true;
 }
@@ -58,6 +88,7 @@ export async function trackScreenView(screenName) {
     window.plausible('pageview', {
       u: url,
       props: {
+        source: APP_SOURCE,
         platform: 'web-app',
         screen: screenName,
       },
@@ -65,24 +96,30 @@ export async function trackScreenView(screenName) {
     return;
   }
 
-  try {
-    await fetch(PLAUSIBLE_EVENT_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain',
-      },
-      body: JSON.stringify({
-        name: 'pageview',
-        url,
-        domain: PLAUSIBLE_DOMAIN,
-        props: {
-          platform: Platform.OS,
-          screen: screenName,
-          source: 'sorola-app',
-        },
-      }),
-    });
-  } catch {
-    // Ignore analytics failures silently.
+  await sendNativeEvent('pageview', url, { screen: screenName });
+}
+
+export async function trackEvent(name, options = {}) {
+  const url = options.url || getScreenUrl(options.screenName || 'Home');
+  const props = {
+    ...options.props,
+  };
+
+  if (options.screenName) {
+    props.screen = options.screenName;
   }
+
+  if (Platform.OS === 'web' && typeof window !== 'undefined' && typeof window.plausible === 'function') {
+    window.plausible(name, {
+      u: url,
+      props: {
+        source: APP_SOURCE,
+        platform: 'web-app',
+        ...props,
+      },
+    });
+    return;
+  }
+
+  await sendNativeEvent(name, url, props);
 }
