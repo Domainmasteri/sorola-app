@@ -13,6 +13,8 @@ export default function PrivacyScreen() {
     { key: 'password', type: 'local' },
     { key: 'jsonFormatter', type: 'local' },
     { key: 'base64', type: 'local' },
+    { key: 'jwt', type: 'local' },
+    { key: 'uuid', type: 'local' },
   ];
 
   return (
