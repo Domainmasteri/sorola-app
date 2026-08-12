@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
-import { createPaste, buildPasteUrl, ApiError } from '../src/services/api';
 
 export default function PastebinScreen() {
   const { t } = useTranslation();
@@ -23,15 +22,24 @@ export default function PastebinScreen() {
     setPasteUrl('');
 
     try {
-      const data = await createPaste(content);
+      // Suora fetch-kutsu ohittaa api.js:n täysin, aivan kuten linkinlyhentimessä
+      const response = await fetch('https://api.sorola.fi/api/paste', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content: content.trim() })
+      });
+      
+      const data = await response.json();
 
-      if (data && typeof data === 'object' && data.success) {
-        setPasteUrl(buildPasteUrl(data.path));
+      if (data && data.success && data.path) {
+        setPasteUrl(`https://sorola.fi/p/${data.path}`);
       } else {
-        setErrorMsg((data && typeof data === 'object' && data.error) || t('pastebin.saveError'));
+        setErrorMsg((data && data.error) || t('pastebin.saveError'));
       }
     } catch (error) {
-      setErrorMsg(error instanceof ApiError ? error.message : t('pastebin.serverError'));
+      setErrorMsg(t('pastebin.serverError'));
     } finally {
       setIsLoading(false);
     }
@@ -99,116 +107,27 @@ export default function PastebinScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
+  container: { flex: 1, padding: 20 },
   section: {
-    backgroundColor: '#191f2d',
-    padding: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#2d3748',
-    marginBottom: 20,
+    backgroundColor: '#191f2d', padding: 20, borderRadius: 12, borderWidth: 1, borderColor: '#2d3748', marginBottom: 20,
   },
   sectionTitle: {
-    color: '#ffaa00',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#2d3748',
-    paddingBottom: 10,
+    color: '#ffaa00', fontSize: 18, fontWeight: 'bold', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#2d3748', paddingBottom: 10,
   },
   textArea: {
-    backgroundColor: '#0b0d13',
-    borderWidth: 1,
-    borderColor: '#4a5568',
-    color: '#fff',
-    padding: 15,
-    borderRadius: 8,
-    fontSize: 14,
-    height: 250,
-    fontFamily: 'monospace',
-    marginBottom: 10,
+    backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#4a5568', color: '#fff', padding: 15, borderRadius: 8, fontSize: 14, height: 250, fontFamily: 'monospace', marginBottom: 10,
   },
-  errorText: {
-    color: '#ef4444',
-    marginBottom: 10,
-    textAlign: 'center',
-    fontWeight: 'bold',
-  },
-  generateBtn: {
-    backgroundColor: '#ffaa00',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  generateBtnText: {
-    color: '#0b0d13',
-    fontWeight: 'bold',
-    fontSize: 16,
-    textTransform: 'uppercase',
-  },
-  successTitle: {
-    color: '#4ade80',
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 5,
-  },
-  helperText: {
-    color: '#a0aec0',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  resultBox: {
-    backgroundColor: '#0b0d13',
-    borderWidth: 1,
-    borderColor: '#ffaa00',
-    padding: 15,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  resultText: {
-    color: '#ffaa00',
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  actionRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 10,
-  },
-  copyBtn: {
-    flex: 1,
-    backgroundColor: '#3b82f6',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  copyBtnSuccess: {
-    backgroundColor: '#22c55e',
-  },
-  copyBtnText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
-  resetBtn: {
-    flex: 1,
-    backgroundColor: '#191f2d',
-    borderWidth: 1,
-    borderColor: '#ffaa00',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  resetBtnText: {
-    color: '#ffaa00',
-    fontWeight: 'bold',
-    fontSize: 14,
-  },
+  errorText: { color: '#ef4444', marginBottom: 10, textAlign: 'center', fontWeight: 'bold' },
+  generateBtn: { backgroundColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 10 },
+  generateBtnText: { color: '#0b0d13', fontWeight: 'bold', fontSize: 16, textTransform: 'uppercase' },
+  successTitle: { color: '#4ade80', fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 5 },
+  helperText: { color: '#a0aec0', textAlign: 'center', marginBottom: 20 },
+  resultBox: { backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#ffaa00', padding: 15, borderRadius: 8, marginBottom: 20 },
+  resultText: { color: '#ffaa00', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
+  actionRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
+  copyBtn: { flex: 1, backgroundColor: '#3b82f6', padding: 15, borderRadius: 8, alignItems: 'center' },
+  copyBtnSuccess: { backgroundColor: '#22c55e' },
+  copyBtnText: { color: 'white', fontWeight: 'bold', fontSize: 14 },
+  resetBtn: { flex: 1, backgroundColor: '#191f2d', borderWidth: 1, borderColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center' },
+  resetBtnText: { color: '#ffaa00', fontWeight: 'bold', fontSize: 14 },
 });
