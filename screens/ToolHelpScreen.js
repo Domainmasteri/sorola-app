@@ -90,6 +90,26 @@ export default function ToolHelpScreen({ navigation }) {
         t('help.tools.base64.step3'),
       ],
     },
+    {
+      id: 'Uuid',
+      title: t('home.tools.uuidTitle'),
+      description: t('help.tools.uuid.description'),
+      steps: [
+        t('help.tools.uuid.step1'),
+        t('help.tools.uuid.step2'),
+        t('help.tools.uuid.step3'),
+      ],
+    },
+    {
+      id: 'Jwt',
+      title: t('home.tools.jwtTitle'),
+      description: t('help.tools.jwt.description'),
+      steps: [
+        t('help.tools.jwt.step1'),
+        t('help.tools.jwt.step2'),
+        t('help.tools.jwt.step3'),
+      ],
+    },
   ];
 
   const openTool = (tool) => {
