@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const DEFAULT_API_URL = 'https://api.sorola.fi/api';
+const DEFAULT_API_URL = 'https://api.sorola.fi';
 const DEFAULT_SITE_URL = 'https://sorola.fi';
 const API_KEY_STORAGE_KEY = 'sorola.apiKey';
 

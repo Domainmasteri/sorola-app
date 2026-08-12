@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Linking } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
+import * as FileSystem from 'expo-file-system';
+import CryptoJS from 'crypto-js';
 import { useTranslation } from '../i18n';
-// Poistettu buildShareUrl, koska käytämme nyt suoraan API:n antamaa lyhytlinkkiä
 import { uploadFile as uploadFileRequest, ApiError } from '../src/services/api';
 
 export default function ShareScreen() {
@@ -11,11 +12,21 @@ export default function ShareScreen() {
   const [file, setFile] = useState(null);
   const [expiryDays, setExpiryDays] = useState(7);
   const [maxDownloads, setMaxDownloads] = useState('0');
+  const [useEncryption, setUseEncryption] = useState(false);
 
   const [shareUrl, setShareUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
+
+  const generateRandomKey = (length = 32) => {
+    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  };
 
   const pickDocument = async () => {
     try {
@@ -32,7 +43,7 @@ export default function ShareScreen() {
     }
   };
 
-  const uploadFile = async () => {
+  const processAndUploadFile = async () => {
     if (!file) {
       setErrorMsg(t('share.pickFirstError'));
       return;
@@ -41,20 +52,77 @@ export default function ShareScreen() {
     setIsLoading(true);
     setErrorMsg('');
     setShareUrl('');
+    let encryptedFilePath = null;
 
     try {
-      const data = await uploadFileRequest(file, { expiryDays, maxDownloads });
+      let fileToUpload = {
+        uri: file.uri,
+        name: file.name,
+        mimeType: file.mimeType,
+        size: file.size
+      };
 
-      // Nyt napataan suoraan API:n palauttama data.url!
-      if (data && typeof data === 'object' && data.url) {
-        setShareUrl(data.url);
-      } else if (data && typeof data === 'object' && data.id) {
-        // Varakonsti, jos API palauttaakin vain ID:n
-        setShareUrl(`https://sorola.fi/d/${data.id}`);
+      let encryptionKey = null;
+
+      if (useEncryption) {
+        // Generoidaan satunnainen purkuavain
+        encryptionKey = generateRandomKey(32);
+
+        // Luetaan alkuperäinen tiedosto Base64-muodossa
+        const fileBase64 = await FileSystem.readAsStringAsync(file.uri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+
+        // Salataan sisältö AES:llä
+        const encryptedData = CryptoJS.AES.encrypt(fileBase64, encryptionKey).toString();
+
+        // Määritellään uusi tiedostopolku välimuistiin
+        encryptedFilePath = `${FileSystem.cacheDirectory}encrypted_${file.name}.enc`;
+
+        // Kirjoitetaan salattu data uuteen tiedostoon
+        await FileSystem.writeAsStringAsync(encryptedFilePath, encryptedData, {
+          encoding: FileSystem.EncodingType.UTF8,
+        });
+
+        fileToUpload = {
+          uri: encryptedFilePath,
+          name: `${file.name}.enc`, // Vihjaa, että kyseessä on salattu tiedosto
+          mimeType: 'application/octet-stream',
+          size: encryptedData.length
+        };
+      }
+
+      // Lähetetään (salattu tai normaali) tiedosto API:lle
+      const data = await uploadFileRequest(fileToUpload, { expiryDays, maxDownloads });
+
+      // Siivotaan väliaikainen salattu tiedosto pois, ettei puhelimen muisti täyty
+      if (encryptedFilePath) {
+         await FileSystem.deleteAsync(encryptedFilePath, { idempotent: true });
+      }
+
+      // Kootaan jakolinkki
+      if (data && typeof data === 'object') {
+        const fileId = data.id || data.url?.split('/').pop();
+        
+        if (useEncryption && fileId) {
+          // Salattu linkki sivuston formaatissa
+           setShareUrl(`https://sorola.fi/s/${fileId}#${encryptionKey}`);
+        } else if (data.url) {
+           // Normaali API:n palauttama latauslinkki
+           setShareUrl(data.url);
+        } else if (fileId) {
+           setShareUrl(`https://sorola.fi/d/${fileId}`);
+        } else {
+           setErrorMsg(t('share.uploadError'));
+        }
       } else {
         setErrorMsg((data && typeof data === 'object' && data.error) || t('share.uploadError'));
       }
+
     } catch (error) {
+      if (encryptedFilePath) {
+          await FileSystem.deleteAsync(encryptedFilePath, { idempotent: true }).catch(() => {});
+      }
       setErrorMsg(error instanceof ApiError ? error.message : t('share.serverError'));
     } finally {
       setIsLoading(false);
@@ -99,6 +167,20 @@ export default function ShareScreen() {
 
           {file && <Text style={styles.fileSizeText}>{t('share.size')} {(file.size / 1024 / 1024).toFixed(2)} MB</Text>}
 
+          <View style={styles.encryptionContainer}>
+            <TouchableOpacity 
+               style={[styles.encryptionToggle, useEncryption && styles.encryptionToggleActive]}
+               onPress={() => setUseEncryption(!useEncryption)}
+            >
+               <Text style={[styles.encryptionText, useEncryption && styles.encryptionTextActive]}>
+                 {useEncryption ? '🔒 ' + t('share.encryptionOn') : '🔓 ' + t('share.encryptionOff')}
+               </Text>
+            </TouchableOpacity>
+            <Text style={styles.encryptionInfoText}>
+              {useEncryption ? t('share.encryptionWarning') : t('share.encryptionHint')}
+            </Text>
+          </View>
+
           <Text style={styles.infoText}>
             {t('share.encryptionHintStart')}{' '}
             <Text style={styles.linkText} onPress={() => Linking.openURL('https://sorola.fi/jako')}>
@@ -109,7 +191,7 @@ export default function ShareScreen() {
 
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-          <TouchableOpacity style={[styles.generateBtn, !file && styles.generateBtnDisabled]} onPress={uploadFile} disabled={isLoading || !file}>
+          <TouchableOpacity style={[styles.generateBtn, !file && styles.generateBtnDisabled]} onPress={processAndUploadFile} disabled={isLoading || !file}>
             {isLoading ? <ActivityIndicator color="#0b0d13" /> : <Text style={styles.generateBtnText}>{t('share.upload')}</Text>}
           </TouchableOpacity>
         </View>
@@ -166,6 +248,36 @@ const styles = StyleSheet.create({
   },
   filePickerText: { color: '#e2e8f0', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   fileSizeText: { color: '#a0aec0', fontSize: 12, textAlign: 'center', marginBottom: 20 },
+  encryptionContainer: {
+    marginBottom: 20,
+    alignItems: 'center'
+  },
+  encryptionToggle: {
+    backgroundColor: '#0b0d13',
+    borderWidth: 1,
+    borderColor: '#4a5568',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  encryptionToggleActive: {
+    borderColor: '#4ade80',
+    backgroundColor: 'rgba(74, 222, 128, 0.1)'
+  },
+  encryptionText: {
+    color: '#a0aec0',
+    fontWeight: 'bold',
+    fontSize: 14
+  },
+  encryptionTextActive: {
+    color: '#4ade80'
+  },
+  encryptionInfoText: {
+    color: '#a0aec0',
+    fontSize: 12,
+    textAlign: 'center',
+  },
   infoText: {
     color: '#a0aec0',
     fontSize: 13,
