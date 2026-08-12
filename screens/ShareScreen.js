@@ -3,7 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Activi
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
-import { uploadFile as uploadFileRequest, buildShareUrl, ApiError } from '../src/services/api';
+// Poistettu buildShareUrl, koska käytämme nyt suoraan API:n antamaa lyhytlinkkiä
+import { uploadFile as uploadFileRequest, ApiError } from '../src/services/api';
 
 export default function ShareScreen() {
   const { t } = useTranslation();
@@ -44,8 +45,12 @@ export default function ShareScreen() {
     try {
       const data = await uploadFileRequest(file, { expiryDays, maxDownloads });
 
-      if (data && typeof data === 'object' && data.id) {
-        setShareUrl(buildShareUrl(data.id));
+      // Nyt napataan suoraan API:n palauttama data.url!
+      if (data && typeof data === 'object' && data.url) {
+        setShareUrl(data.url);
+      } else if (data && typeof data === 'object' && data.id) {
+        // Varakonsti, jos API palauttaakin vain ID:n
+        setShareUrl(`https://sorola.fi/d/${data.id}`);
       } else {
         setErrorMsg((data && typeof data === 'object' && data.error) || t('share.uploadError'));
       }
