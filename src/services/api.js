@@ -98,8 +98,11 @@ export const createPaste = async (content) => apiRequest('/paste', {
 export const uploadFile = async (file, options = {}) => {
   const formData = new FormData();
 
+  // KORJAUS: Välilyönnit URI:ssa aiheuttavat React Nativen fetchissä "Network request failed" virheen.
+  const safeUri = file.uri.replace(/ /g, '%20');
+
   formData.append('file', {
-    uri: file.uri,
+    uri: safeUri,
     name: file.name,
     type: file.mimeType || file.type || 'application/octet-stream',
   });

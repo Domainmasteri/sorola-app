@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Activi
 import * as DocumentPicker from 'expo-document-picker';
 import * as Clipboard from 'expo-clipboard';
 import * as FileSystem from 'expo-file-system';
-import CryptoJS from 'crypto-js';
+import forge from 'node-forge';
 import { useTranslation } from '../i18n';
 import { uploadFile as uploadFileRequest, ApiError } from '../src/services/api';
 
@@ -19,14 +19,10 @@ export default function ShareScreen() {
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
 
-  const generateRandomKey = (length = 32) => {
-    const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_';
-    let result = '';
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  };
+  const toBase64Url = (bytes) => forge.util.encode64(bytes)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 
   const pickDocument = async () => {
     try {
@@ -65,35 +61,51 @@ export default function ShareScreen() {
       let encryptionKey = null;
 
       if (useEncryption) {
-        // Generoidaan satunnainen purkuavain
-        encryptionKey = generateRandomKey(32);
+        // Match the web downloader's AES-256-GCM format: IV + ciphertext + tag.
+        const rawKey = forge.random.getBytesSync(32);
+        const iv = forge.random.getBytesSync(12);
+        encryptionKey = toBase64Url(rawKey);
 
         // Luetaan alkuperäinen tiedosto Base64-muodossa
         const fileBase64 = await FileSystem.readAsStringAsync(file.uri, {
           encoding: FileSystem.EncodingType.Base64,
         });
 
-        // Salataan sisältö AES:llä
-        const encryptedData = CryptoJS.AES.encrypt(fileBase64, encryptionKey).toString();
+        const fileBytes = forge.util.decode64(fileBase64);
+        const cipher = forge.cipher.createCipher('AES-GCM', rawKey);
+        cipher.start({ iv, tagLength: 128 });
+        cipher.update(forge.util.createBuffer(fileBytes, 'raw'));
 
-        // Määritellään uusi tiedostopolku välimuistiin
-        encryptedFilePath = `${FileSystem.cacheDirectory}encrypted_${file.name}.enc`;
+        if (!cipher.finish()) {
+          throw new Error('File encryption failed.');
+        }
 
-        // Kirjoitetaan salattu data uuteen tiedostoon
-        await FileSystem.writeAsStringAsync(encryptedFilePath, encryptedData, {
+        const encryptedBytes = iv + cipher.output.getBytes() + cipher.mode.tag.getBytes();
+        const encryptedBase64 = forge.util.encode64(encryptedBytes);
+
+        // KORJAUS 1: Korvataan välilyönnit nimestä turvallisella merkillä, jottei pyyntö kaadu reitin muodostukseen.
+        const safeName = file.name.replace(/\s+/g, '_');
+        encryptedFilePath = `${FileSystem.cacheDirectory}encrypted_${safeName}.enc`;
+
+        // FileSystem decodes this Base64 value so the uploaded file contains raw bytes.
+        await FileSystem.writeAsStringAsync(encryptedFilePath, encryptedBase64, {
           encoding: FileSystem.EncodingType.Base64,
         });
 
         fileToUpload = {
           uri: encryptedFilePath,
-          name: `${file.name}.enc`, // Vihjaa, että kyseessä on salattu tiedosto
+          name: `${safeName}.enc`,
           mimeType: 'application/octet-stream',
-          size: encryptedData.length
+          size: encryptedBytes.length
         };
       }
 
-      // Lähetetään (salattu tai normaali) tiedosto API:lle
-      const data = await uploadFileRequest(fileToUpload, { expiryDays, maxDownloads });
+      // KORJAUS 3: Lähetetään tiedosto API:lle ja välitetään isEncrypted arvo selkeästi
+      const data = await uploadFileRequest(fileToUpload, {
+        expiryDays,
+        maxDownloads,
+        ...(useEncryption && { isEncrypted: 'true' })
+      });
 
       // Siivotaan väliaikainen salattu tiedosto pois, ettei puhelimen muisti täyty
       if (encryptedFilePath) {
@@ -105,10 +117,8 @@ export default function ShareScreen() {
         const fileId = data.id || data.url?.split('/').pop();
         
         if (useEncryption && fileId) {
-          // Salattu linkki sivuston formaatissa
-           setShareUrl(`https://sorola.fi/s/${fileId}#${encryptionKey}`);
+           setShareUrl(`https://sorola.fi/s/${fileId}#key=${encryptionKey}`);
         } else if (data.url) {
-           // Normaali API:n palauttama latauslinkki
            setShareUrl(data.url);
         } else if (fileId) {
            setShareUrl(`https://sorola.fi/d/${fileId}`);
