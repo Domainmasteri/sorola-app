@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const DEFAULT_API_URL = 'https://api.sorola.fi';
+const DEFAULT_API_URL = 'https://api.sorola.fi/api';
 const DEFAULT_SITE_URL = 'https://sorola.fi';
 const API_KEY_STORAGE_KEY = 'sorola.apiKey';
 
@@ -19,7 +19,6 @@ class ApiError extends Error {
   }
 }
 
-const MISSING_API_KEY_MESSAGE = 'API key missing. Save a valid API key in the app settings before using Sorola API.';
 const REJECTED_API_KEY_MESSAGE = 'API key rejected by Sorola API. Update the saved API key and try again.';
 
 export const getApiKey = async () => {
@@ -42,12 +41,8 @@ export const setApiKey = async (key) => {
 const buildHeaders = async (headers = {}) => {
   const apiKey = await getApiKey();
 
-  if (!apiKey) {
-    throw new ApiError(MISSING_API_KEY_MESSAGE, 0);
-  }
-
   return {
-    'X-API-Key': apiKey,
+    ...(apiKey ? { 'X-API-Key': apiKey } : {}),
     ...headers,
   };
 };
