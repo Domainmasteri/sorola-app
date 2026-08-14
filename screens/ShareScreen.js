@@ -81,7 +81,7 @@ export default function ShareScreen() {
 
         // Kirjoitetaan salattu data uuteen tiedostoon
         await FileSystem.writeAsStringAsync(encryptedFilePath, encryptedData, {
-          encoding: FileSystem.EncodingType.UTF8,
+          encoding: FileSystem.EncodingType.Base64,
         });
 
         fileToUpload = {
