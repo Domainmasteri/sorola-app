@@ -19,6 +19,7 @@ export default function HomeScreen({ navigation }) {
     { id: 'Base64', title: t('home.tools.base64Title'), desc: t('home.tools.base64Desc') },
     { id: 'Uuid', title: t('home.tools.uuidTitle'), desc: t('home.tools.uuidDesc') },
     { id: 'Jwt', title: t('home.tools.jwtTitle'), desc: t('home.tools.jwtDesc') },
+    { id: 'ExportView', title: t('home.tools.exportViewTitle'), desc: t('home.tools.exportViewDesc') },
   ];
 
   const renderTools = (tools) => (

@@ -15,6 +15,7 @@ export default function PrivacyScreen() {
     { key: 'base64', type: 'local' },
     { key: 'jwt', type: 'local' },
     { key: 'uuid', type: 'local' },
+    { key: 'exportView', type: 'local' },
   ];
 
   return (

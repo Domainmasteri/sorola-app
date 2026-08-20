@@ -1,21 +1,32 @@
+# Node-riippuvuudet
 node_modules/
+npm-debug.log*
+
+# Expo
 .expo/
 dist/
 web-build/
-.expo-shared/
 
-# Native builds
-android/
-ios/
+# Android-käännöstiedostot ja välimuistit
+android/.gradle/
+android/app/build/
+android/build/
+android/local.properties
+android/app/src/main/assets/
 
-# macOS
-.DS_Store
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-@sorolan-it__sorola-app.jks
-sorola-release-key.keystore
+# Julkaisuavaimet ja salaisuudet (KRIITTINEN)
+*.jks
+*.keystore
 keystore-base64.txt
+android/app/*.jks
+android/app/*.keystore
+.env
+.env.*
+
+# Tekoälytyökalut (Aider)
+.aider*
+.aider.chat.history.md
+.aider.input.history
+
+# Käyttöjärjestelmän tiedostot
+.DS_Store

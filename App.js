@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Alert } from 'react-native';
+import { Alert, NativeModules, Platform } from 'react-native';
 import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import * as Updates from 'expo-updates';
@@ -15,20 +15,29 @@ import ToolHelpScreen from './screens/ToolHelpScreen';
 import Base64Screen from './screens/Base64Screen';
 import UuidScreen from './screens/UuidScreen';
 import JwtScreen from './screens/JwtScreen';
+import ExportViewScreen from './screens/ExportViewScreen';
 import PrivacyScreen from './screens/PrivacyScreen';
-import { initializeAnalytics, trackScreenView } from './analytics';
 import { TranslationProvider, useTranslation } from './i18n';
 
 const Stack = createNativeStackNavigator();
+const { PlausibleTracker } = NativeModules;
+
+function trackPlausiblePageView(screenName) {
+  if (Platform.OS !== 'android' || !screenName || !PlausibleTracker?.trackEvent) {
+    return;
+  }
+
+  try {
+    PlausibleTracker.trackEvent('pageview', screenName);
+  } catch {
+    // Tracking failures must never affect navigation.
+  }
+}
 
 function AppNavigator() {
   const { t } = useTranslation();
   const navigationRef = useNavigationContainerRef();
   const routeNameRef = useRef();
-
-  useEffect(() => {
-    initializeAnalytics();
-  }, []);
 
   useEffect(() => {
     const checkForUpdates = async () => {
@@ -78,7 +87,7 @@ function AppNavigator() {
         routeNameRef.current = routeName;
 
         if (routeName) {
-          void trackScreenView(routeName);
+          trackPlausiblePageView(routeName);
         }
       }}
       onStateChange={() => {
@@ -89,7 +98,7 @@ function AppNavigator() {
         }
 
         routeNameRef.current = routeName;
-        void trackScreenView(routeName);
+        trackPlausiblePageView(routeName);
       }}
     >
       <Stack.Navigator
@@ -111,6 +120,7 @@ function AppNavigator() {
         <Stack.Screen name="Base64" component={Base64Screen} options={{ title: t('home.tools.base64Title') }} />
         <Stack.Screen name="Uuid" component={UuidScreen} options={{ title: t('home.tools.uuidTitle') }} />
         <Stack.Screen name="Jwt" component={JwtScreen} options={{ title: t('home.tools.jwtTitle') }} />
+        <Stack.Screen name="ExportView" component={ExportViewScreen} options={{ title: t('home.tools.exportViewTitle') }} />
         <Stack.Screen name="Privacy" component={PrivacyScreen} options={{ title: t('home.privacyButtonTitle') }} />
         <Stack.Screen name="ToolHelp" component={ToolHelpScreen} options={{ title: t('nav.help') }} />
       </Stack.Navigator>

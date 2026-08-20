@@ -110,6 +110,16 @@ export default function ToolHelpScreen({ navigation }) {
         t('help.tools.jwt.step3'),
       ],
     },
+    {
+      id: 'ExportView',
+      title: t('home.tools.exportViewTitle'),
+      description: t('help.tools.exportView.description'),
+      steps: [
+        t('help.tools.exportView.step1'),
+        t('help.tools.exportView.step2'),
+        t('help.tools.exportView.step3'),
+      ],
+    },
   ];
 
   const openTool = (tool) => {
