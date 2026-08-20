@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 
 // Luotettava Base64Url purku UTF-8 tuella React Nativelle
 const decodeBase64Url = (base64UrlStr) => {
@@ -25,6 +26,8 @@ const decodeBase64Url = (base64UrlStr) => {
 
 export default function JwtScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [token, setToken] = useState('');
   const [decodedHeader, setDecodedHeader] = useState(null);
   const [decodedPayload, setDecodedPayload] = useState(null);
@@ -88,7 +91,7 @@ export default function JwtScreen() {
         <TextInput
           style={styles.input}
           placeholder={t('jwt.placeholder')}
-          placeholderTextColor="#a0aec0"
+          placeholderTextColor={colors.textMuted}
           value={token}
           onChangeText={setToken}
           multiline
@@ -131,21 +134,21 @@ export default function JwtScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1, padding: 20 },
-  section: { backgroundColor: '#191f2d', padding: 20, borderRadius: 12, borderWidth: 1, borderColor: '#2d3748', marginBottom: 20 },
-  sectionTitle: { color: '#ffaa00', fontSize: 18, fontWeight: 'bold', marginBottom: 10, borderBottomWidth: 1, borderBottomColor: '#2d3748', paddingBottom: 10 },
-  helperText: { color: '#a0aec0', marginBottom: 15, fontSize: 14, lineHeight: 20 },
-  input: { backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#4a5568', color: '#fff', padding: 15, borderRadius: 8, fontSize: 14, height: 120, fontFamily: 'monospace', marginBottom: 15 },
-  label: { color: '#a0aec0', marginBottom: 8, fontSize: 14, fontWeight: 'bold' },
+  section: { backgroundColor: colors.surface, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20 },
+  sectionTitle: { color: colors.accent, fontSize: 18, fontWeight: 'bold', marginBottom: 10, borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 10 },
+  helperText: { color: colors.textMuted, marginBottom: 15, fontSize: 14, lineHeight: 20 },
+  input: { backgroundColor: colors.input, borderWidth: 1, borderColor: colors.borderStrong, color: colors.text, padding: 15, borderRadius: 8, fontSize: 14, height: 120, fontFamily: 'monospace', marginBottom: 15 },
+  label: { color: colors.textMuted, marginBottom: 8, fontSize: 14, fontWeight: 'bold' },
   errorText: { color: '#ef4444', marginBottom: 10, textAlign: 'center', fontWeight: 'bold' },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
-  generateBtn: { flex: 1, backgroundColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center' },
-  generateBtnText: { color: '#0b0d13', fontWeight: 'bold', fontSize: 14, textTransform: 'uppercase' },
-  clearBtn: { flex: 1, backgroundColor: '#191f2d', borderWidth: 1, borderColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center' },
-  clearBtnText: { color: '#ffaa00', fontWeight: 'bold', fontSize: 14 },
+  generateBtn: { flex: 1, backgroundColor: colors.accent, padding: 15, borderRadius: 8, alignItems: 'center' },
+  generateBtnText: { color: colors.onAccent, fontWeight: 'bold', fontSize: 14, textTransform: 'uppercase' },
+  clearBtn: { flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.accent, padding: 15, borderRadius: 8, alignItems: 'center' },
+  clearBtnText: { color: colors.accent, fontWeight: 'bold', fontSize: 14 },
   successTitle: { color: '#4ade80', fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 15 },
-  resultBox: { backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#4a5568', padding: 15, borderRadius: 8, marginBottom: 20 },
+  resultBox: { backgroundColor: colors.input, borderWidth: 1, borderColor: colors.borderStrong, padding: 15, borderRadius: 8, marginBottom: 20 },
   resultText: { color: '#4ade80', fontSize: 14, fontFamily: 'monospace' },
   copyBtn: { backgroundColor: '#3b82f6', padding: 15, borderRadius: 8, alignItems: 'center' },
   copyBtnSuccess: { backgroundColor: '#22c55e' },

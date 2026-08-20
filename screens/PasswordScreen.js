@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Switch, StyleSheet, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 
 export default function PasswordScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [password, setPassword] = useState('');
   const [length, setLength] = useState(16);
   const [lowers, setLowers] = useState(true);
@@ -56,8 +59,8 @@ export default function PasswordScreen() {
       <Switch
         value={value}
         onValueChange={onValueChange}
-        trackColor={{ false: '#4a5568', true: '#ffaa00' }}
-        thumbColor={value ? '#11141d' : '#a0aec0'}
+        trackColor={{ false: colors.borderStrong, true: colors.accent }}
+        thumbColor={value ? colors.surfaceElevated : colors.textMuted}
       />
     </View>
   );
@@ -105,26 +108,26 @@ export default function PasswordScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
   },
   section: {
-    backgroundColor: '#191f2d',
+    backgroundColor: colors.surface,
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2d3748',
+    borderColor: colors.border,
     marginBottom: 20,
   },
   sectionTitle: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#2d3748',
+    borderBottomColor: colors.border,
     paddingBottom: 10,
   },
   toggleRow: {
@@ -134,7 +137,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   toggleText: {
-    color: '#e2e8f0',
+    color: colors.text,
     fontSize: 16,
   },
   lengthContainer: {
@@ -148,9 +151,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   counterBtn: {
-    backgroundColor: '#0b0d13',
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: '#ffaa00',
+    borderColor: colors.accent,
     borderRadius: 8,
     width: 40,
     height: 40,
@@ -158,12 +161,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   counterBtnText: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 24,
     fontWeight: 'bold',
   },
   lengthText: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 20,
     fontWeight: 'bold',
     marginHorizontal: 20,
@@ -171,28 +174,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   generateBtn: {
-    backgroundColor: '#ffaa00',
+    backgroundColor: colors.accent,
     padding: 15,
     borderRadius: 8,
     marginTop: 10,
     alignItems: 'center',
   },
   generateBtnText: {
-    color: '#0b0d13',
+    color: colors.onAccent,
     fontWeight: 'bold',
     fontSize: 16,
     textTransform: 'uppercase',
   },
   passwordBox: {
-    backgroundColor: '#0b0d13',
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: '#4a5568',
+    borderColor: colors.borderStrong,
     padding: 15,
     borderRadius: 8,
     marginBottom: 20,
   },
   passwordText: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 20,
     fontFamily: 'monospace',
     textAlign: 'center',

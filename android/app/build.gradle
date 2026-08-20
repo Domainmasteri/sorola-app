@@ -88,6 +88,9 @@ android {
 
     namespace 'fi.sorola.app'
     defaultConfig {
+        // Keep this aligned with app.json, the Android manifest deep link, and the
+        // package containing MainActivity/MainApplication. A mismatch produces a
+        // different installed app identity from the Expo configuration.
         applicationId 'fi.sorola.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
@@ -180,4 +183,3 @@ dependencies {
         implementation jscFlavor
     }
 }
-

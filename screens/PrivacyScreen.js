@@ -1,9 +1,12 @@
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 
 export default function PrivacyScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
 
   const tools = [
     { key: 'shortener', type: 'server' },
@@ -45,39 +48,39 @@ export default function PrivacyScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 20, paddingBottom: 40 },
   hero: {
-    backgroundColor: '#191f2d',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#2d3748',
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 20,
     marginBottom: 20,
   },
   heroTitle: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
   },
   heroText: {
-    color: '#e2e8f0',
+    color: colors.text,
     textAlign: 'center',
     lineHeight: 22,
   },
   card: {
-    backgroundColor: '#191f2d',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#2d3748',
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 18,
     marginBottom: 12,
   },
   cardTitle: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 17,
     fontWeight: 'bold',
     marginBottom: 8,
@@ -100,27 +103,27 @@ const styles = StyleSheet.create({
     borderColor: '#fbbf24',
   },
   tagText: {
-    color: '#e2e8f0',
+    color: colors.text,
     fontWeight: 'bold',
     fontSize: 12,
   },
   summary: {
-    color: '#e2e8f0',
+    color: colors.text,
     lineHeight: 20,
     marginBottom: 10,
   },
   details: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     lineHeight: 20,
     marginBottom: 10,
   },
   footer: {
-    color: '#cbd5e1',
+    color: colors.textSecondary,
     fontSize: 13,
     lineHeight: 18,
   },
   contact: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     textAlign: 'center',
     marginTop: 12,
     lineHeight: 20,

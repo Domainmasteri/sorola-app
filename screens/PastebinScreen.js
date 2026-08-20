@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 
 export default function PastebinScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [content, setContent] = useState('');
   const [pasteUrl, setPasteUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +71,7 @@ export default function PastebinScreen() {
           <TextInput
             style={styles.textArea}
             placeholder={t('pastebin.placeholderText')}
-            placeholderTextColor="#a0aec0"
+            placeholderTextColor={colors.textMuted}
             value={content}
             onChangeText={setContent}
             multiline
@@ -79,7 +82,7 @@ export default function PastebinScreen() {
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
           <TouchableOpacity style={styles.generateBtn} onPress={savePaste} disabled={isLoading}>
-            {isLoading ? <ActivityIndicator color="#0b0d13" /> : <Text style={styles.generateBtnText}>{t('pastebin.save')}</Text>}
+            {isLoading ? <ActivityIndicator color={colors.onAccent} /> : <Text style={styles.generateBtnText}>{t('pastebin.save')}</Text>}
           </TouchableOpacity>
         </View>
       ) : (
@@ -106,28 +109,28 @@ export default function PastebinScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1, padding: 20 },
   section: {
-    backgroundColor: '#191f2d', padding: 20, borderRadius: 12, borderWidth: 1, borderColor: '#2d3748', marginBottom: 20,
+    backgroundColor: colors.surface, padding: 20, borderRadius: 12, borderWidth: 1, borderColor: colors.border, marginBottom: 20,
   },
   sectionTitle: {
-    color: '#ffaa00', fontSize: 18, fontWeight: 'bold', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: '#2d3748', paddingBottom: 10,
+    color: colors.accent, fontSize: 18, fontWeight: 'bold', marginBottom: 15, borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 10,
   },
   textArea: {
-    backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#4a5568', color: '#fff', padding: 15, borderRadius: 8, fontSize: 14, height: 250, fontFamily: 'monospace', marginBottom: 10,
+    backgroundColor: colors.input, borderWidth: 1, borderColor: colors.borderStrong, color: colors.text, padding: 15, borderRadius: 8, fontSize: 14, height: 250, fontFamily: 'monospace', marginBottom: 10,
   },
   errorText: { color: '#ef4444', marginBottom: 10, textAlign: 'center', fontWeight: 'bold' },
-  generateBtn: { backgroundColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 10 },
-  generateBtnText: { color: '#0b0d13', fontWeight: 'bold', fontSize: 16, textTransform: 'uppercase' },
+  generateBtn: { backgroundColor: colors.accent, padding: 15, borderRadius: 8, alignItems: 'center', marginTop: 10 },
+  generateBtnText: { color: colors.onAccent, fontWeight: 'bold', fontSize: 16, textTransform: 'uppercase' },
   successTitle: { color: '#4ade80', fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 5 },
-  helperText: { color: '#a0aec0', textAlign: 'center', marginBottom: 20 },
-  resultBox: { backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#ffaa00', padding: 15, borderRadius: 8, marginBottom: 20 },
-  resultText: { color: '#ffaa00', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
+  helperText: { color: colors.textMuted, textAlign: 'center', marginBottom: 20 },
+  resultBox: { backgroundColor: colors.input, borderWidth: 1, borderColor: colors.accent, padding: 15, borderRadius: 8, marginBottom: 20 },
+  resultText: { color: colors.accent, fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
   copyBtn: { flex: 1, backgroundColor: '#3b82f6', padding: 15, borderRadius: 8, alignItems: 'center' },
   copyBtnSuccess: { backgroundColor: '#22c55e' },
   copyBtnText: { color: 'white', fontWeight: 'bold', fontSize: 14 },
-  resetBtn: { flex: 1, backgroundColor: '#191f2d', borderWidth: 1, borderColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center' },
-  resetBtnText: { color: '#ffaa00', fontWeight: 'bold', fontSize: 14 },
+  resetBtn: { flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.accent, padding: 15, borderRadius: 8, alignItems: 'center' },
+  resetBtnText: { color: colors.accent, fontWeight: 'bold', fontSize: 14 },
 });

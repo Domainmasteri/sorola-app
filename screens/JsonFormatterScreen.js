@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 
 export default function JsonFormatterScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [status, setStatus] = useState({ type: '', message: '' });
@@ -80,7 +83,7 @@ export default function JsonFormatterScreen() {
         <TextInput
           style={styles.textArea}
           placeholder={t('jsonFormatter.placeholder')}
-          placeholderTextColor="#a0aec0"
+          placeholderTextColor={colors.textMuted}
           value={input}
           onChangeText={setInput}
           multiline
@@ -122,7 +125,7 @@ export default function JsonFormatterScreen() {
           multiline
           textAlignVertical="top"
           placeholder={t('jsonFormatter.outputPlaceholder')}
-          placeholderTextColor="#a0aec0"
+          placeholderTextColor={colors.textMuted}
         />
 
         <TouchableOpacity style={[styles.copyBtn, copied && styles.copyBtnSuccess]} onPress={copyToClipboard}>
@@ -133,38 +136,38 @@ export default function JsonFormatterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
   },
   section: {
-    backgroundColor: '#191f2d',
+    backgroundColor: colors.surface,
     padding: 20,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2d3748',
+    borderColor: colors.border,
     marginBottom: 20,
   },
   sectionTitle: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#2d3748',
+    borderBottomColor: colors.border,
     paddingBottom: 10,
   },
   helperText: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     marginBottom: 15,
     lineHeight: 20,
   },
   textArea: {
-    backgroundColor: '#0b0d13',
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: '#4a5568',
-    color: '#e2e8f0',
+    borderColor: colors.borderStrong,
+    color: colors.text,
     padding: 15,
     borderRadius: 8,
     fontSize: 14,
@@ -182,43 +185,43 @@ const styles = StyleSheet.create({
   },
   primaryBtn: {
     flex: 1,
-    backgroundColor: '#ffaa00',
+    backgroundColor: colors.accent,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
   },
   primaryBtnText: {
-    color: '#0b0d13',
+    color: colors.onAccent,
     fontWeight: 'bold',
     fontSize: 15,
     textTransform: 'uppercase',
   },
   secondaryBtn: {
     flex: 1,
-    backgroundColor: '#191f2d',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#ffaa00',
+    borderColor: colors.accent,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
   },
   secondaryBtnText: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontWeight: 'bold',
     fontSize: 15,
     textTransform: 'uppercase',
   },
   clearBtn: {
-    backgroundColor: '#0b0d13',
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: '#4a5568',
+    borderColor: colors.borderStrong,
     padding: 15,
     borderRadius: 8,
     alignItems: 'center',
     marginTop: 10,
   },
   clearBtnText: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     fontWeight: 'bold',
     fontSize: 15,
     textTransform: 'uppercase',

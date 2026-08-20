@@ -95,6 +95,21 @@ export const createPaste = async (content) => apiRequest('/paste', {
   body: JSON.stringify({ content }),
 });
 
+export const createFeedback = async ({ name, email, message }) => apiRequest('/reports', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    type: 'feedback',
+    name,
+    email,
+    message,
+    appVersion: '1.0.0',
+    platform: 'android',
+  }),
+});
+
 export const uploadFile = async (file, options = {}) => {
   const formData = new FormData();
 

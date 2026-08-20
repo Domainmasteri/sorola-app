@@ -1,9 +1,12 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 
 export default function ToolHelpScreen({ navigation }) {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
 
   const basicTools = [
     {
@@ -55,17 +58,6 @@ export default function ToolHelpScreen({ navigation }) {
         t('help.tools.password.step2'),
         t('help.tools.password.step3'),
       ],
-    },
-    {
-      id: 'Download',
-      title: t('home.tools.downloadAppTitle'),
-      description: t('help.tools.download.description'),
-      steps: [
-        t('help.tools.download.step1'),
-        t('help.tools.download.step2'),
-        t('help.tools.download.step3'),
-      ],
-      url: 'https://soro.la/sovellus',
     },
   ];
 
@@ -123,11 +115,6 @@ export default function ToolHelpScreen({ navigation }) {
   ];
 
   const openTool = (tool) => {
-    if (tool.url) {
-      Linking.openURL(tool.url);
-      return;
-    }
-
     navigation.navigate(tool.id);
   };
 
@@ -170,7 +157,7 @@ export default function ToolHelpScreen({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -179,22 +166,22 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   hero: {
-    backgroundColor: '#191f2d',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#2d3748',
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 20,
     marginBottom: 20,
   },
   heroTitle: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 22,
     fontWeight: 'bold',
     marginBottom: 10,
     textAlign: 'center',
   },
   heroText: {
-    color: '#e2e8f0',
+    color: colors.text,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -202,32 +189,32 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   sectionTitle: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 6,
   },
   sectionDescription: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     marginBottom: 12,
     lineHeight: 20,
   },
   card: {
-    backgroundColor: '#191f2d',
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: '#2d3748',
+    borderColor: colors.border,
     borderRadius: 12,
     padding: 18,
     marginBottom: 12,
   },
   cardTitle: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontSize: 17,
     fontWeight: 'bold',
     marginBottom: 8,
   },
   cardDescription: {
-    color: '#e2e8f0',
+    color: colors.text,
     lineHeight: 20,
     marginBottom: 12,
   },
@@ -236,17 +223,17 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   stepText: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     lineHeight: 20,
   },
   openBtn: {
-    backgroundColor: '#ffaa00',
+    backgroundColor: colors.accent,
     borderRadius: 8,
     padding: 14,
     alignItems: 'center',
   },
   openBtnText: {
-    color: '#0b0d13',
+    color: colors.onAccent,
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },

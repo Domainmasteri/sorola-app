@@ -16,6 +16,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 import {
   createExportCsv,
   ExportViewError,
@@ -36,6 +37,8 @@ const ERROR_KEYS = {
 
 export default function ExportViewScreen({ navigation }) {
   const { t, language } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [provider, setProvider] = useState('bitwarden');
   const [providerModalVisible, setProviderModalVisible] = useState(false);
   const [records, setRecords] = useState([]);
@@ -183,7 +186,7 @@ export default function ExportViewScreen({ navigation }) {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.primaryButton} onPress={pickExportFile} disabled={isLoading}>
-        {isLoading ? <ActivityIndicator color="#0b0d13" /> : <Text style={styles.primaryButtonText}>{t('exportView.chooseFile')}</Text>}
+        {isLoading ? <ActivityIndicator color={colors.onAccent} /> : <Text style={styles.primaryButtonText}>{t('exportView.chooseFile')}</Text>}
       </TouchableOpacity>
       {!!fileName && <Text style={styles.fileName}>{t('exportView.selectedFile', { file: fileName })}</Text>}
 
@@ -210,7 +213,7 @@ export default function ExportViewScreen({ navigation }) {
             value={query}
             onChangeText={setQuery}
             placeholder={t('exportView.searchPlaceholder')}
-            placeholderTextColor="#718096"
+            placeholderTextColor={colors.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
           />
@@ -307,47 +310,47 @@ function SecretField({ label, value, visible, onToggle, onCopy, showLabel, hideL
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 16, paddingBottom: 48 },
-  hero: { backgroundColor: '#191f2d', borderColor: '#2d3748', borderWidth: 1, borderRadius: 12, padding: 18, marginBottom: 18 },
-  title: { color: '#ffaa00', fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
-  description: { color: '#e2e8f0', lineHeight: 21, textAlign: 'center' },
+  hero: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 12, padding: 18, marginBottom: 18 },
+  title: { color: colors.accent, fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 },
+  description: { color: colors.text, lineHeight: 21, textAlign: 'center' },
   securityBox: { backgroundColor: 'rgba(74, 222, 128, 0.1)', borderColor: '#4ade80', borderWidth: 1, borderRadius: 8, padding: 12, marginTop: 16 },
   securityTitle: { color: '#4ade80', fontWeight: 'bold', marginBottom: 4 },
-  securityText: { color: '#cbd5e1', lineHeight: 19 },
-  label: { color: '#a0aec0', fontWeight: 'bold', marginBottom: 6 },
-  select: { backgroundColor: '#191f2d', borderColor: '#2d3748', borderWidth: 1, borderRadius: 8, padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  selectText: { color: '#e2e8f0', fontWeight: 'bold' },
-  chevron: { color: '#ffaa00', fontSize: 20 },
-  primaryButton: { backgroundColor: '#ffaa00', borderRadius: 8, padding: 14, alignItems: 'center', minHeight: 48, justifyContent: 'center' },
-  primaryButtonText: { color: '#0b0d13', fontWeight: 'bold' },
-  fileName: { color: '#a0aec0', marginTop: 8, fontSize: 13 },
+  securityText: { color: colors.textSecondary, lineHeight: 19 },
+  label: { color: colors.textMuted, fontWeight: 'bold', marginBottom: 6 },
+  select: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 8, padding: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
+  selectText: { color: colors.text, fontWeight: 'bold' },
+  chevron: { color: colors.accent, fontSize: 20 },
+  primaryButton: { backgroundColor: colors.accent, borderRadius: 8, padding: 14, alignItems: 'center', minHeight: 48, justifyContent: 'center' },
+  primaryButtonText: { color: colors.onAccent, fontWeight: 'bold' },
+  fileName: { color: colors.textMuted, marginTop: 8, fontSize: 13 },
   error: { color: '#fca5a5', backgroundColor: 'rgba(248, 113, 113, 0.12)', borderColor: '#f87171', borderWidth: 1, borderRadius: 8, padding: 12, marginTop: 12, lineHeight: 19 },
   resultsHeader: { marginTop: 20, marginBottom: 10 },
-  resultCount: { color: '#ffaa00', fontWeight: 'bold', fontSize: 18, marginBottom: 10 },
+  resultCount: { color: colors.accent, fontWeight: 'bold', fontSize: 18, marginBottom: 10 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  secondaryButton: { backgroundColor: '#2d3748', borderRadius: 8, paddingVertical: 11, paddingHorizontal: 14 },
-  secondaryButtonText: { color: '#e2e8f0', fontWeight: 'bold' },
+  secondaryButton: { backgroundColor: colors.border, borderRadius: 8, paddingVertical: 11, paddingHorizontal: 14 },
+  secondaryButtonText: { color: colors.text, fontWeight: 'bold' },
   clearButton: { borderColor: '#718096', borderWidth: 1, borderRadius: 8, paddingVertical: 10, paddingHorizontal: 14 },
-  clearButtonText: { color: '#cbd5e1', fontWeight: 'bold' },
-  input: { backgroundColor: '#11141d', color: '#e2e8f0', borderColor: '#2d3748', borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 12 },
-  card: { backgroundColor: '#191f2d', borderColor: '#2d3748', borderWidth: 1, borderRadius: 12, padding: 14, marginBottom: 12 },
-  field: { borderBottomColor: '#2d3748', borderBottomWidth: 1, paddingVertical: 9 },
-  fieldLabel: { color: '#ffaa00', fontWeight: 'bold', fontSize: 12, marginBottom: 4 },
-  fieldValue: { color: '#e2e8f0', lineHeight: 19 },
-  compactValue: { color: '#cbd5e1' },
+  clearButtonText: { color: colors.textSecondary, fontWeight: 'bold' },
+  input: { backgroundColor: colors.surfaceElevated, color: colors.text, borderColor: colors.border, borderWidth: 1, borderRadius: 8, padding: 12, marginBottom: 12 },
+  card: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 12, padding: 14, marginBottom: 12 },
+  field: { borderBottomColor: colors.border, borderBottomWidth: 1, paddingVertical: 9 },
+  fieldLabel: { color: colors.accent, fontWeight: 'bold', fontSize: 12, marginBottom: 4 },
+  fieldValue: { color: colors.text, lineHeight: 19 },
+  compactValue: { color: colors.textSecondary },
   secretRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  secretValue: { color: '#e2e8f0', flex: 1, minWidth: 100 },
+  secretValue: { color: colors.text, flex: 1, minWidth: 100 },
   tinyButton: { borderColor: '#718096', borderWidth: 1, borderRadius: 6, paddingVertical: 5, paddingHorizontal: 7 },
-  tinyButtonText: { color: '#e2e8f0', fontSize: 11, fontWeight: 'bold' },
-  empty: { color: '#a0aec0', textAlign: 'center', padding: 20 },
+  tinyButtonText: { color: colors.text, fontSize: 11, fontWeight: 'bold' },
+  empty: { color: colors.textMuted, textAlign: 'center', padding: 20 },
   links: { alignItems: 'center', gap: 12, marginTop: 18 },
-  link: { color: '#ffaa00', textDecorationLine: 'underline' },
+  link: { color: colors.accent, textDecorationLine: 'underline' },
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', padding: 24 },
-  modalCard: { backgroundColor: '#191f2d', borderColor: '#2d3748', borderWidth: 1, borderRadius: 12, padding: 18 },
-  modalTitle: { color: '#ffaa00', fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
-  option: { borderColor: '#2d3748', borderWidth: 1, borderRadius: 8, padding: 14, marginTop: 8 },
-  optionActive: { borderColor: '#ffaa00', backgroundColor: 'rgba(255,170,0,0.1)' },
-  optionText: { color: '#e2e8f0', fontWeight: 'bold' },
+  modalCard: { backgroundColor: colors.surface, borderColor: colors.border, borderWidth: 1, borderRadius: 12, padding: 18 },
+  modalTitle: { color: colors.accent, fontSize: 18, fontWeight: 'bold', marginBottom: 10 },
+  option: { borderColor: colors.border, borderWidth: 1, borderRadius: 8, padding: 14, marginTop: 8 },
+  optionActive: { borderColor: colors.accent, backgroundColor: colors.surfaceElevated },
+  optionText: { color: colors.text, fontWeight: 'bold' },
 });

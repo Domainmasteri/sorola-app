@@ -5,10 +5,13 @@ import * as Clipboard from 'expo-clipboard';
 import * as FileSystem from 'expo-file-system';
 import forge from 'node-forge';
 import { useTranslation } from '../i18n';
+import { useTheme } from '../src/theme';
 import { uploadFile as uploadFileRequest, ApiError } from '../src/services/api';
 
 export default function ShareScreen() {
   const { t } = useTranslation();
+  const { colors } = useTheme();
+  const styles = createStyles(colors);
   const [file, setFile] = useState(null);
   const [expiryDays, setExpiryDays] = useState(7);
   const [maxDownloads, setMaxDownloads] = useState('0');
@@ -172,7 +175,7 @@ export default function ShareScreen() {
           <TextInput style={styles.input} value={maxDownloads} onChangeText={setMaxDownloads} keyboardType="number-pad" maxLength={4} />
 
           <TouchableOpacity style={styles.filePickerBtn} onPress={pickDocument}>
-            <Text style={styles.filePickerText}>{file ? `📁 ${file.name}` : t('share.pickFile')}</Text>
+            <Text style={styles.filePickerText}>{file ? file.name : t('share.pickFile')}</Text>
           </TouchableOpacity>
 
           {file && <Text style={styles.fileSizeText}>{t('share.size')} {(file.size / 1024 / 1024).toFixed(2)} MB</Text>}
@@ -183,7 +186,7 @@ export default function ShareScreen() {
                onPress={() => setUseEncryption(!useEncryption)}
             >
                <Text style={[styles.encryptionText, useEncryption && styles.encryptionTextActive]}>
-                 {useEncryption ? '🔒 ' + t('share.encryptionOn') : '🔓 ' + t('share.encryptionOff')}
+                 {useEncryption ? t('share.encryptionOn') : t('share.encryptionOff')}
                </Text>
             </TouchableOpacity>
             <Text style={styles.encryptionInfoText}>
@@ -202,7 +205,7 @@ export default function ShareScreen() {
           {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
           <TouchableOpacity style={[styles.generateBtn, !file && styles.generateBtnDisabled]} onPress={processAndUploadFile} disabled={isLoading || !file}>
-            {isLoading ? <ActivityIndicator color="#0b0d13" /> : <Text style={styles.generateBtnText}>{t('share.upload')}</Text>}
+            {isLoading ? <ActivityIndicator color={colors.onAccent} /> : <Text style={styles.generateBtnText}>{t('share.upload')}</Text>}
           </TouchableOpacity>
         </View>
       ) : (
@@ -229,43 +232,43 @@ export default function ShareScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (colors) => StyleSheet.create({
   container: { flex: 1, padding: 20 },
   section: {
-    backgroundColor: '#191f2d', padding: 20, borderRadius: 12,
-    borderWidth: 1, borderColor: '#2d3748', marginBottom: 20,
+    backgroundColor: colors.surface, padding: 20, borderRadius: 12,
+    borderWidth: 1, borderColor: colors.border, marginBottom: 20,
   },
   sectionTitle: {
-    color: '#ffaa00', fontSize: 18, fontWeight: 'bold', marginBottom: 20,
-    borderBottomWidth: 1, borderBottomColor: '#2d3748', paddingBottom: 10,
+    color: colors.accent, fontSize: 18, fontWeight: 'bold', marginBottom: 20,
+    borderBottomWidth: 1, borderBottomColor: colors.border, paddingBottom: 10,
   },
-  label: { color: '#a0aec0', marginBottom: 8, fontSize: 14, fontWeight: 'bold' },
+  label: { color: colors.textMuted, marginBottom: 8, fontSize: 14, fontWeight: 'bold' },
   daysContainer: { flexDirection: 'row', marginBottom: 20, justifyContent: 'space-between' },
   dayBtn: {
-    flex: 1, backgroundColor: '#0b0d13', paddingVertical: 10, borderRadius: 8,
-    borderWidth: 1, borderColor: '#4a5568', marginHorizontal: 4, alignItems: 'center',
+    flex: 1, backgroundColor: colors.input, paddingVertical: 10, borderRadius: 8,
+    borderWidth: 1, borderColor: colors.borderStrong, marginHorizontal: 4, alignItems: 'center',
   },
-  dayBtnActive: { borderColor: '#ffaa00', backgroundColor: 'rgba(255, 170, 0, 0.1)' },
-  dayBtnText: { color: '#e2e8f0', fontWeight: 'bold' },
-  dayBtnTextActive: { color: '#ffaa00' },
+  dayBtnActive: { borderColor: colors.accent, backgroundColor: colors.surfaceElevated },
+  dayBtnText: { color: colors.text, fontWeight: 'bold' },
+  dayBtnTextActive: { color: colors.accent },
   input: {
-    backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#4a5568', color: '#fff',
+    backgroundColor: colors.input, borderWidth: 1, borderColor: colors.borderStrong, color: colors.text,
     padding: 12, borderRadius: 8, fontSize: 16, marginBottom: 20,
   },
   filePickerBtn: {
-    borderWidth: 2, borderColor: '#4a5568', borderStyle: 'dashed', backgroundColor: '#11141d',
+    borderWidth: 2, borderColor: colors.borderStrong, borderStyle: 'dashed', backgroundColor: colors.surfaceElevated,
     padding: 25, borderRadius: 12, alignItems: 'center', marginBottom: 5,
   },
-  filePickerText: { color: '#e2e8f0', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
-  fileSizeText: { color: '#a0aec0', fontSize: 12, textAlign: 'center', marginBottom: 20 },
+  filePickerText: { color: colors.text, fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
+  fileSizeText: { color: colors.textMuted, fontSize: 12, textAlign: 'center', marginBottom: 20 },
   encryptionContainer: {
     marginBottom: 20,
     alignItems: 'center'
   },
   encryptionToggle: {
-    backgroundColor: '#0b0d13',
+    backgroundColor: colors.input,
     borderWidth: 1,
-    borderColor: '#4a5568',
+    borderColor: colors.borderStrong,
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 8,
@@ -276,7 +279,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(74, 222, 128, 0.1)'
   },
   encryptionText: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     fontWeight: 'bold',
     fontSize: 14
   },
@@ -284,40 +287,40 @@ const styles = StyleSheet.create({
     color: '#4ade80'
   },
   encryptionInfoText: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     fontSize: 12,
     textAlign: 'center',
   },
   infoText: {
-    color: '#a0aec0',
+    color: colors.textMuted,
     fontSize: 13,
     textAlign: 'center',
     marginBottom: 20,
     lineHeight: 20,
   },
   linkText: {
-    color: '#ffaa00',
+    color: colors.accent,
     fontWeight: 'bold',
     textDecorationLine: 'underline',
   },
   errorText: { color: '#ef4444', marginBottom: 10, textAlign: 'center', fontWeight: 'bold' },
-  generateBtn: { backgroundColor: '#ffaa00', padding: 15, borderRadius: 8, alignItems: 'center' },
-  generateBtnDisabled: { backgroundColor: '#a0aec0' },
-  generateBtnText: { color: '#0b0d13', fontWeight: 'bold', fontSize: 16, textTransform: 'uppercase' },
+  generateBtn: { backgroundColor: colors.accent, padding: 15, borderRadius: 8, alignItems: 'center' },
+  generateBtnDisabled: { backgroundColor: colors.textMuted },
+  generateBtnText: { color: colors.onAccent, fontWeight: 'bold', fontSize: 16, textTransform: 'uppercase' },
   successTitle: { color: '#4ade80', fontSize: 18, fontWeight: 'bold', textAlign: 'center', marginBottom: 5 },
-  helperText: { color: '#a0aec0', textAlign: 'center', marginBottom: 20 },
+  helperText: { color: colors.textMuted, textAlign: 'center', marginBottom: 20 },
   resultBox: {
-    backgroundColor: '#0b0d13', borderWidth: 1, borderColor: '#ffaa00', padding: 15,
+    backgroundColor: colors.input, borderWidth: 1, borderColor: colors.accent, padding: 15,
     borderRadius: 8, marginBottom: 20,
   },
-  resultText: { color: '#ffaa00', fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
+  resultText: { color: colors.accent, fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
   copyBtn: { flex: 1, backgroundColor: '#3b82f6', padding: 15, borderRadius: 8, alignItems: 'center' },
   copyBtnSuccess: { backgroundColor: '#22c55e' },
   copyBtnText: { color: 'white', fontWeight: 'bold', fontSize: 14 },
   resetBtn: {
-    flex: 1, backgroundColor: '#191f2d', borderWidth: 1, borderColor: '#ffaa00',
+    flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.accent,
     padding: 15, borderRadius: 8, alignItems: 'center',
   },
-  resetBtnText: { color: '#ffaa00', fontWeight: 'bold', fontSize: 14 },
+  resetBtnText: { color: colors.accent, fontWeight: 'bold', fontSize: 14 },
 });
