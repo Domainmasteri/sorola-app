@@ -17,11 +17,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#191f2d"
       },
-      "package": "fi.sorola.app"
+      "package": "fi.sorola.toolbox"
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "fi.sorola.app"
+      "bundleIdentifier": "fi.sorola.toolbox"
     },
     "web": {
       "favicon": "./assets/favicon.png"

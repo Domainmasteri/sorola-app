@@ -86,16 +86,13 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'fi.sorola.app'
+    namespace 'fi.sorola.toolbox'
     defaultConfig {
-        // Keep this aligned with app.json, the Android manifest deep link, and the
-        // package containing MainActivity/MainApplication. A mismatch produces a
-        // different installed app identity from the Expo configuration.
-        applicationId 'fi.sorola.app'
+        applicationId 'fi.sorola.toolbox'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 2
-        versionName "2.0"
+        versionCode 1
+        versionName "1.0.0"
     }
     signingConfigs {
         debug {
@@ -103,12 +100,6 @@ android {
             storePassword 'android'
             keyAlias 'androiddebugkey'
             keyPassword 'android'
-        }
-        release {
-            storeFile file(System.getenv("SOROLA_APP_KEY_FILE") ?: "")
-            storePassword System.getenv("SOROLA_APP_KEYSTORE_PASSWORD")
-            keyAlias System.getenv("SOROLA_APP_KEY_ALIAS")
-            keyPassword System.getenv("SOROLA_APP_KEY_PASSWORD")
         }
     }
     buildTypes {
@@ -118,7 +109,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.debug
             shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"

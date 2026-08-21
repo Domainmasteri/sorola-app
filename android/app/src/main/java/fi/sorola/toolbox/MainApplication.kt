@@ -1,4 +1,4 @@
-package fi.sorola.app
+package fi.sorola.toolbox
 
 import android.app.Application
 import android.content.res.Configuration
@@ -15,7 +15,6 @@ import com.facebook.soloader.SoLoader
 
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
-import fi.sorola.app.analytics.PlausibleTrackerPackage
 
 class MainApplication : Application(), ReactApplication {
 
@@ -24,7 +23,8 @@ class MainApplication : Application(), ReactApplication {
         object : DefaultReactNativeHost(this) {
           override fun getPackages(): List<ReactPackage> {
             val packages = PackageList(this).packages
-            packages.add(PlausibleTrackerPackage())
+            // Packages that cannot be autolinked yet can be added manually here, for example:
+            // packages.add(new MyReactNativePackage());
             return packages
           }
 

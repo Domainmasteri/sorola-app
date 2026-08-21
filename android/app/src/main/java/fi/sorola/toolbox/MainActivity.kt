@@ -1,4 +1,4 @@
-package fi.sorola.app
+package fi.sorola.toolbox
 
 import android.os.Build
 import android.os.Bundle
