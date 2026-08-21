@@ -22,6 +22,12 @@ const translations = {
       light: 'Vaalea teema',
       dark: 'Tumma teema',
     },
+    update: {
+      title: 'Uusi versio saatavilla',
+      message: 'Versio {version} on saatavilla. Asennettu versio on {currentVersion}.',
+      later: 'Myöhemmin',
+      download: 'Lataa päivitys',
+    },
     onboarding: {
       skip: 'Ohita',
       next: 'Seuraava',
@@ -410,6 +416,12 @@ const translations = {
     theme: {
       light: 'Light theme',
       dark: 'Dark theme',
+    },
+    update: {
+      title: 'Update available',
+      message: 'Version {version} is available. You currently have version {currentVersion}.',
+      later: 'Later',
+      download: 'Download update',
     },
     onboarding: {
       skip: 'Skip',

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, NativeModules, Platform, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, Linking, NativeModules, Platform, StyleSheet, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StatusBar } from 'expo-status-bar';
 import { DarkTheme, DefaultTheme, NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
@@ -22,6 +22,7 @@ import FeedbackScreen from './screens/FeedbackScreen';
 import OnboardingScreen from './screens/OnboardingScreen';
 import { TranslationProvider, useTranslation } from './i18n';
 import { ThemeProvider, useTheme } from './src/theme';
+import { getAvailableUpdate, getInstalledVersion } from './src/services/appUpdate';
 
 const Stack = createNativeStackNavigator();
 const { PlausibleTracker } = NativeModules;
@@ -112,6 +113,39 @@ function AppNavigator({ hasCompletedOnboarding, onCompleteOnboarding }) {
   );
 }
 
+function UpdateCheck() {
+  const { language, t } = useTranslation();
+  const hasCheckedForUpdate = useRef(false);
+
+  useEffect(() => {
+    if (hasCheckedForUpdate.current) return;
+    hasCheckedForUpdate.current = true;
+
+    getAvailableUpdate()
+      .then((update) => {
+        const downloadUrl = update?.downloadUrl?.[language] || update?.downloadUrl?.en;
+        if (!downloadUrl) return;
+
+        Alert.alert(
+          t('update.title'),
+          t('update.message', { version: update.version, currentVersion: getInstalledVersion() }),
+          [
+            { text: t('update.later'), style: 'cancel' },
+            {
+              text: t('update.download'),
+              onPress: () => Linking.openURL(downloadUrl).catch(() => {}),
+            },
+          ],
+        );
+      })
+      .catch(() => {
+        // The update check is optional and must not interfere with app startup.
+      });
+  }, [language, t]);
+
+  return null;
+}
+
 export default function App() {
   const [hasCompletedOnboarding, setHasCompletedOnboarding] = useState(null);
 
@@ -133,6 +167,7 @@ export default function App() {
   return (
     <TranslationProvider>
       <ThemeProvider>
+        <UpdateCheck />
         {hasCompletedOnboarding === null ? (
           <View style={styles.loading}>
             <StatusBar style="light" backgroundColor="#0b0d13" />
