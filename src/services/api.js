@@ -38,16 +38,7 @@ export const setApiKey = async (key) => {
   return normalizedKey;
 };
 
-const buildHeaders = async (headers = {}) => {
-  const apiKey = await getApiKey();
-
-  return {
-    ...(apiKey ? { 'X-API-Key': apiKey } : {}),
-    ...headers,
-  };
-};
-
-const parseResponse = async (response) => {
+const parseResponse = async (response, { apiKeyWasSent = false } = {}) => {
   const contentType = response.headers.get('content-type') || '';
   const isJson = contentType.includes('application/json');
   const data = isJson ? await response.json() : await response.text();
@@ -56,7 +47,7 @@ const parseResponse = async (response) => {
     return data;
   }
 
-  if (response.status === 401 || response.status === 403) {
+  if ((response.status === 401 || response.status === 403) && apiKeyWasSent) {
     throw new ApiError(REJECTED_API_KEY_MESSAGE, response.status, data);
   }
 
@@ -68,13 +59,17 @@ const parseResponse = async (response) => {
 };
 
 const apiRequest = async (path, options = {}) => {
-  const { headers, ...rest } = options;
+  const { headers = {}, includeApiKey = true, ...rest } = options;
+  const apiKey = includeApiKey ? await getApiKey() : '';
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...rest,
-    headers: await buildHeaders(headers),
+    headers: {
+      ...(apiKey ? { 'X-API-Key': apiKey } : {}),
+      ...headers,
+    },
   });
 
-  return parseResponse(response);
+  return parseResponse(response, { apiKeyWasSent: Boolean(apiKey) });
 };
 
 export const shortenUrl = async (url, domain) => {
@@ -95,7 +90,7 @@ export const createPaste = async (content) => apiRequest('/paste', {
   body: JSON.stringify({ content }),
 });
 
-export const createFeedback = async ({ name, email, message }) => apiRequest('/reports', {
+export const createFeedback = async ({ name, email, message, appVersion }) => apiRequest('/reports', {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
@@ -105,7 +100,7 @@ export const createFeedback = async ({ name, email, message }) => apiRequest('/r
     name,
     email,
     message,
-    appVersion: '1.0.0',
+    appVersion: appVersion || 'unknown',
     platform: 'android',
   }),
 });
@@ -131,6 +126,9 @@ export const uploadFile = async (file, options = {}) => {
   return apiRequest('/upload', {
     method: 'POST',
     body: formData,
+    // File sharing is public and does not use the optional saved API key.
+    // Sending a stale key can cause a proxy to reject an otherwise valid upload.
+    includeApiKey: false,
     headers: {
       Accept: 'application/json',
     },

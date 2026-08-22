@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { Linking, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useTranslation } from '../i18n';
 import { useTheme } from '../src/theme';
 
@@ -20,6 +20,7 @@ export default function HomeScreen({ navigation }) {
   const { t, language, setLanguage } = useTranslation();
   const { colors, mode, toggleTheme } = useTheme();
   const styles = createStyles(colors);
+  const changelogUrl = language === 'fi' ? 'https://sorola.fi/lataukset/' : 'https://sorola.me/downloads/';
 
   const basicTools = [
     { id: 'Shortener', icon: 'link', title: t('home.tools.shortenerTitle'), desc: t('home.tools.shortenerDesc') },
@@ -83,6 +84,15 @@ export default function HomeScreen({ navigation }) {
       <TouchableOpacity style={styles.helpCard} onPress={() => navigation.navigate('Feedback')}>
         <View style={styles.helpCardHeading}><Text style={styles.helpIcon}>✎</Text><Text style={styles.helpCardTitle}>{t('home.feedbackButtonTitle')}</Text></View>
         <Text style={styles.helpCardDesc}>{t('home.feedbackButtonDesc')}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.helpCard}
+        onPress={() => Linking.openURL(changelogUrl).catch(() => {})}
+        accessibilityRole="link"
+      >
+        <View style={styles.helpCardHeading}><Text style={styles.helpIcon}>↗</Text><Text style={styles.helpCardTitle}>{t('home.changelogButtonTitle')}</Text></View>
+        <Text style={styles.helpCardDesc}>{t('home.changelogButtonDesc')}</Text>
       </TouchableOpacity>
 
       <View style={styles.sectionHeader}>

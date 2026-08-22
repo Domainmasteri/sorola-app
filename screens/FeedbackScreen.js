@@ -3,6 +3,7 @@ import { ActivityIndicator, KeyboardAvoidingView, Platform, ScrollView, StyleShe
 import { useTranslation } from '../i18n';
 import { useTheme } from '../src/theme';
 import { createFeedback } from '../src/services/api';
+import { getInstalledVersion } from '../src/services/appVersion';
 
 export default function FeedbackScreen() {
   const { t } = useTranslation();
@@ -30,7 +31,7 @@ export default function FeedbackScreen() {
     setIsSending(true);
     setStatus(null);
     try {
-      await createFeedback({ name: name.trim(), email: trimmedEmail, message: trimmedMessage });
+      await createFeedback({ name: name.trim(), email: trimmedEmail, message: trimmedMessage, appVersion: getInstalledVersion() });
       setMessage('');
       setStatus({ type: 'success', text: t('feedback.success') });
     } catch {

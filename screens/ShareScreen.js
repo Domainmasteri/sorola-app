@@ -18,6 +18,7 @@ export default function ShareScreen() {
   const [useEncryption, setUseEncryption] = useState(false);
 
   const [shareUrl, setShareUrl] = useState('');
+  const [encryptionKey, setEncryptionKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [copied, setCopied] = useState(false);
@@ -51,6 +52,7 @@ export default function ShareScreen() {
     setIsLoading(true);
     setErrorMsg('');
     setShareUrl('');
+    setEncryptionKey('');
     let encryptedFilePath = null;
 
     try {
@@ -62,12 +64,14 @@ export default function ShareScreen() {
       };
 
       let encryptionKey = null;
+      let encryptionKeyHash = null;
 
       if (useEncryption) {
         // Match the web downloader's AES-256-GCM format: IV + ciphertext + tag.
         const rawKey = forge.random.getBytesSync(32);
         const iv = forge.random.getBytesSync(12);
         encryptionKey = toBase64Url(rawKey);
+        encryptionKeyHash = forge.md.sha256.create().update(encryptionKey, 'utf8').digest().toHex();
 
         // Luetaan alkuperäinen tiedosto Base64-muodossa
         const fileBase64 = await FileSystem.readAsStringAsync(file.uri, {
@@ -107,7 +111,7 @@ export default function ShareScreen() {
       const data = await uploadFileRequest(fileToUpload, {
         expiryDays,
         maxDownloads,
-        ...(useEncryption && { isEncrypted: 'true' })
+        ...(useEncryption && { isEncrypted: 'true', encryptionKeyHash })
       });
 
       // Siivotaan väliaikainen salattu tiedosto pois, ettei puhelimen muisti täyty
@@ -120,7 +124,8 @@ export default function ShareScreen() {
         const fileId = data.id || data.url?.split('/').pop();
         
         if (useEncryption && fileId) {
-           setShareUrl(`https://sorola.fi/s/${fileId}#key=${encryptionKey}`);
+           setShareUrl(data.shortUrl || data.url || `https://sorola.fi/s/${fileId}`);
+           setEncryptionKey(encryptionKey);
         } else if (data.url) {
            setShareUrl(data.url);
         } else if (fileId) {
@@ -149,9 +154,17 @@ export default function ShareScreen() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const copyKeyToClipboard = async () => {
+    if (!encryptionKey) return;
+    await Clipboard.setStringAsync(encryptionKey);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   const resetUpload = () => {
     setFile(null);
     setShareUrl('');
+    setEncryptionKey('');
     setErrorMsg('');
     setCopied(false);
   };
@@ -211,11 +224,23 @@ export default function ShareScreen() {
       ) : (
         <View style={styles.section}>
           <Text style={styles.successTitle}>{t('share.shared')}</Text>
-          <Text style={styles.helperText}>{t('share.shareLinkHint')}</Text>
+          <Text style={styles.helperText}>{encryptionKey ? t('share.separateKeyHint') : t('share.shareLinkHint')}</Text>
 
           <View style={styles.resultBox}>
             <Text style={styles.resultText}>{shareUrl}</Text>
           </View>
+
+          {encryptionKey ? (
+            <>
+              <Text style={styles.keyLabel}>{t('share.encryptionKey')}</Text>
+              <View style={styles.keyBox}>
+                <Text style={styles.keyText}>{encryptionKey}</Text>
+              </View>
+              <TouchableOpacity style={[styles.copyBtn, copied && styles.copyBtnSuccess, styles.keyCopyBtn]} onPress={copyKeyToClipboard}>
+                <Text style={styles.copyBtnText}>{copied ? t('share.copied') : t('share.copyKey')}</Text>
+              </TouchableOpacity>
+            </>
+          ) : null}
 
           <View style={styles.actionRow}>
             <TouchableOpacity style={[styles.copyBtn, copied && styles.copyBtnSuccess]} onPress={copyToClipboard}>
@@ -314,9 +339,16 @@ const createStyles = (colors) => StyleSheet.create({
     borderRadius: 8, marginBottom: 20,
   },
   resultText: { color: colors.accent, fontSize: 16, fontWeight: 'bold', textAlign: 'center' },
+  keyLabel: { color: colors.textMuted, fontWeight: 'bold', marginBottom: 8 },
+  keyBox: {
+    backgroundColor: colors.input, borderWidth: 1, borderColor: '#4ade80', padding: 15,
+    borderRadius: 8, marginBottom: 10,
+  },
+  keyText: { color: '#4ade80', fontSize: 14, fontWeight: 'bold', textAlign: 'center' },
   actionRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 10 },
   copyBtn: { flex: 1, backgroundColor: '#3b82f6', padding: 15, borderRadius: 8, alignItems: 'center' },
   copyBtnSuccess: { backgroundColor: '#22c55e' },
+  keyCopyBtn: { marginBottom: 10 },
   copyBtnText: { color: 'white', fontWeight: 'bold', fontSize: 14 },
   resetBtn: {
     flex: 1, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.accent,

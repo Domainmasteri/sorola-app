@@ -22,12 +22,6 @@ const translations = {
       light: 'Vaalea teema',
       dark: 'Tumma teema',
     },
-    update: {
-      title: 'Uusi versio saatavilla',
-      message: 'Versio {version} on saatavilla. Asennettu versio on {currentVersion}.',
-      later: 'Myöhemmin',
-      download: 'Lataa päivitys',
-    },
     onboarding: {
       skip: 'Ohita',
       next: 'Seuraava',
@@ -255,6 +249,9 @@ const translations = {
       upload: 'Lataa pilveen',
       shared: 'Tiedosto jaettu!',
       shareLinkHint: 'Jaa alla oleva linkki vastaanottajalle.',
+      separateKeyHint: 'Jaa tiedostolinkki ja salausavain erikseen. Lähetä avain eri kanavaa pitkin.',
+      encryptionKey: 'Salausavain',
+      copyKey: 'Kopioi salausavain',
       copied: 'Kopioitu!',
       copy: 'Kopioi linkki',
       shareNew: 'Jaa uusi',
@@ -416,12 +413,6 @@ const translations = {
     theme: {
       light: 'Light theme',
       dark: 'Dark theme',
-    },
-    update: {
-      title: 'Update available',
-      message: 'Version {version} is available. You currently have version {currentVersion}.',
-      later: 'Later',
-      download: 'Download update',
     },
     onboarding: {
       skip: 'Skip',
@@ -650,6 +641,9 @@ const translations = {
       upload: 'Upload to cloud',
       shared: 'File shared!',
       shareLinkHint: 'Share the link below with the recipient.',
+      separateKeyHint: 'Share the file link and encryption key separately. Send the key through another channel.',
+      encryptionKey: 'Encryption key',
+      copyKey: 'Copy encryption key',
       copied: 'Copied!',
       copy: 'Copy link',
       shareNew: 'Share new',
